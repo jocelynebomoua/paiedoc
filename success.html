@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Paiement confirmé</title>
+<script src="paywall.js"></script>
+<style>
+  :root{--navy:#0e2342;--accent:#2563c9;--ink:#16202e;--muted:#5d6b7e;--ok:#0f7a55;}
+  body{margin:0;font-family:ui-sans-serif,-apple-system,"Segoe UI",Roboto,sans-serif;background:#eef1f6;color:var(--ink);display:flex;min-height:100vh;align-items:center;justify-content:center;padding:24px;}
+  .card{background:#fff;border:1px solid #e3e8f0;border-radius:16px;max-width:460px;width:100%;padding:34px;text-align:center;box-shadow:0 14px 40px rgba(14,35,66,.12);}
+  .ic{width:60px;height:60px;border-radius:50%;background:#e6f4ee;color:var(--ok);display:flex;align-items:center;justify-content:center;font-size:30px;margin:0 auto 16px;}
+  h1{font-size:21px;margin:0 0 8px;color:var(--navy);}
+  p{font-size:14px;color:var(--muted);line-height:1.55;margin:0 0 10px;}
+  .credits{background:#e9f0fb;border:1px solid #cadcf5;border-radius:10px;padding:12px;margin:16px 0;font-size:13.5px;color:var(--navy);font-weight:600;}
+  .btns{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-top:18px;}
+  a.btn{text-decoration:none;border-radius:9px;font-size:14px;font-weight:600;padding:12px 18px;}
+  .btn-primary{background:var(--accent);color:#fff;}
+  .btn-ghost{background:#fff;color:var(--ink);border:1px solid #cdd6e3;}
+  .err{color:#a23b3b;}
+</style>
+</head>
+<body>
+  <div class="card">
+    <div class="ic" id="ic">✓</div>
+    <h1 id="title">Vérification du paiement…</h1>
+    <p id="msg">Merci de patienter un instant.</p>
+    <div class="credits" id="credits" style="display:none"></div>
+    <div class="btns" id="btns" style="display:none">
+      <a class="btn btn-primary" href="fiche-de-paie.html">Créer une fiche de paie</a>
+      <a class="btn btn-ghost" href="contrat-de-travail.html">Créer un contrat</a>
+    </div>
+  </div>
+<script>
+(async function(){
+  var q = new URLSearchParams(location.search);
+  var sid = q.get("session_id");
+  var product = q.get("product");
+  var title=document.getElementById("title"), msg=document.getElementById("msg"),
+      ic=document.getElementById("ic"), btns=document.getElementById("btns"),
+      creditsBox=document.getElementById("credits");
+  if(!sid){ ic.textContent="!"; title.textContent="Aucun paiement détecté"; msg.textContent="Revenez à l'accueil pour créer un document."; btns.style.display="flex"; return; }
+  try{
+    var r = await fetch("/api/verify?session_id=" + encodeURIComponent(sid));
+    var d = await r.json();
+    if(d && d.paid){
+      Paywall.addProduct(product || d.product);
+      title.textContent = "Paiement confirmé 🎉";
+      msg.textContent = "Vos crédits ont été ajoutés. Vous pouvez maintenant télécharger vos documents sans filigrane sur ce navigateur.";
+      var f = Paywall.credits("fiche"), c = Paywall.credits("contrat");
+      creditsBox.textContent = "Crédits disponibles : " + f + " fiche(s) de paie" + (c>0 ? " · " + c + " contrat(s)" : "");
+      creditsBox.style.display = "block";
+      btns.style.display = "flex";
+    } else {
+      ic.textContent="!"; ic.style.background="#fdecec"; ic.style.color="#a23b3b";
+      title.textContent = "Paiement non confirmé";
+      msg.innerHTML = "<span class='err'>Le paiement n'a pas pu être validé.</span> Si vous avez été débité, contactez-nous.";
+      btns.style.display="flex";
+    }
+  }catch(e){
+    ic.textContent="!";
+    title.textContent="Erreur de vérification";
+    msg.textContent="Réessayez dans un instant. (Le paiement ne fonctionne qu'une fois le site déployé avec votre clé Stripe.)";
+    btns.style.display="flex";
+  }
+})();
+</script>
+</body>
+</html>
