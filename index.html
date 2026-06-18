@@ -89,8 +89,8 @@
 
   /* Pricing */
   .pricing{background:var(--bg-soft);border-top:1px solid var(--line);border-bottom:1px solid var(--line);}
-  .plans{display:grid;grid-template-columns:repeat(2,1fr);gap:20px;max-width:760px;margin:0 auto;}
-  @media (max-width:680px){.plans{grid-template-columns:1fr;}}
+  .plans{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;max-width:1040px;margin:0 auto;}
+  @media (max-width:880px){.plans{grid-template-columns:1fr;max-width:460px;}}
   .plan{background:#fff;border:1px solid var(--line);border-radius:14px;padding:30px;position:relative;}
   .plan.feat{border-color:var(--ink);box-shadow:0 16px 40px rgba(20,24,31,.10);}
   .plan .badge{position:absolute;top:-12px;left:30px;background:var(--ink);color:#fff;font-size:10.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:5px 12px;border-radius:999px;}
@@ -189,10 +189,21 @@
       <ul>
         <li>1 fiche de paie complète</li>
         <li>Calculs &amp; prélèvement à la source automatiques</li>
-        <li>Téléchargement PDF sans filigrane</li>
+        <li>Téléchargement PDF net et complet</li>
         <li>Aperçu gratuit avant paiement</li>
       </ul>
       <a class="btn btn-outline-dark choose" href="fiche-de-paie.html">Créer une fiche</a>
+    </div>
+    <div class="plan">
+      <h3>Contrat de travail</h3>
+      <div class="price">30 €<span> / contrat</span></div>
+      <ul>
+        <li>1 contrat CDI ou CDD</li>
+        <li>Clauses essentielles &amp; mentions légales</li>
+        <li>Remplissage automatique par SIRET</li>
+        <li>Aperçu gratuit avant paiement</li>
+      </ul>
+      <a class="btn btn-outline-dark choose" href="contrat-de-travail.html">Créer un contrat</a>
     </div>
     <div class="plan feat">
       <span class="badge">Le plus avantageux</span>
@@ -201,7 +212,7 @@
       <ul>
         <li>3 fiches de paie</li>
         <li>1 contrat de travail (CDI ou CDD)</li>
-        <li>Téléchargements PDF sans filigrane</li>
+        <li>Téléchargements PDF nets et complets</li>
         <li>Crédits utilisables quand vous voulez</li>
       </ul>
       <a class="btn btn-dark choose" href="fiche-de-paie.html">Choisir le pack</a>

@@ -9,6 +9,7 @@
   // Formules en vente (doit correspondre aux prix de /api/create-checkout.js)
   var PRODUCTS = {
     fiche:  { label:"1 fiche de paie",           price:"10 €", grants:{ fiche:1 } },
+    contrat:{ label:"1 contrat de travail",      price:"30 €", grants:{ contrat:1 } },
     bundle: { label:"Pack 3 fiches + 1 contrat", price:"50 €", grants:{ fiche:3, contrat:1 } }
   };
 
@@ -115,6 +116,7 @@
       + "<h3>D\u00e9bloquer le t\u00e9l\u00e9chargement</h3>"
       + "<p class='pp-sub'>Votre document est pr\u00eat. Choisissez une formule pour t\u00e9l\u00e9charger le PDF net et complet.</p>"
       + "<div class='pp-opt' data-p='fiche'><span class='l'>1 fiche de paie</span><span class='pr'>10 \u20ac</span></div>"
+      + "<div class='pp-opt' data-p='contrat'><span class='l'>1 contrat de travail</span><span class='pr'>30 \u20ac</span></div>"
       + "<div class='pp-opt' data-p='bundle'><span class='l'>Pack 3 fiches + 1 contrat</span><span class='pr'>50 \u20ac</span></div>"
       + "<label class='pp-att'><input type='checkbox' id='pp-att-chk'> Je certifie sur l'honneur \u00eatre employeur ou d\u00fbment mandat\u00e9, et utiliser ce service uniquement pour produire des documents authentiques, \u00e0 des fins l\u00e9gitimes.</label>"
       + "<button class='pp-buy' id='pp-buy' disabled>Continuer vers le paiement</button>"

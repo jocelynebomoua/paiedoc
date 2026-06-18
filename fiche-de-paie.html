@@ -104,6 +104,9 @@
   .paper-shadow{filter:drop-shadow(0 14px 36px rgba(14,35,66,.16));}
 
   .bulletin{background:var(--paper);color:#13202f;max-width:840px;margin:0 auto;border:1px solid var(--line);border-radius:8px;overflow:hidden;}
+  .bulletin-series{background:transparent;border:0;border-radius:0;overflow:visible;}
+  .bulletin-series .bulletin{margin:0 auto 26px;}
+  .html2pdf__page-break{height:0;line-height:0;}
   .bhead{background:var(--navy);color:#fff;display:flex;justify-content:space-between;gap:20px;align-items:center;padding:20px 26px;}
   .bhead .co{display:flex;align-items:center;gap:13px;min-width:0;}
   .bhead .mono{width:42px;height:42px;border-radius:9px;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.18);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:16px;flex:0 0 auto;}
@@ -391,6 +394,18 @@
           </div>
         </section>
 
+        <!-- Série (plusieurs mois) -->
+        <section class="card">
+          <header><div class="ic">📅</div><div><h2>Plusieurs mois (série)</h2><div class="desc">Générer plusieurs bulletins d'un coup</div></div></header>
+          <div class="body">
+            <div class="row one"><div class="field full"><label>Nombre de bulletins (mois consécutifs)</label>
+              <input id="serie_n" type="number" min="1" max="24" step="1" value="1">
+            </div></div>
+            <div class="notice" style="margin-top:10px">Le 1<sup>er</sup> mois est celui de la section « Période &amp; rémunération » ; les suivants s'enchaînent automatiquement. Les taux, heures et primes sont communs à la série ; seul le <b>Brut</b> de chaque mois est ajustable ci-dessous. Les cumuls s'additionnent de mois en mois. <b>Chaque bulletin = 1 crédit.</b></div>
+            <div id="serie_rows" style="margin-top:12px;display:none"></div>
+          </div>
+        </section>
+
         <!-- Personnalisation -->
         <section class="card">
           <header><div class="ic">★</div><div><h2>Personnalisation</h2><div class="desc">Modèle, couleur et logo</div></div></header>
@@ -608,42 +623,39 @@ function render(){
   const salNom=(val('sal_prenom')+' '+val('sal_nom')).trim();
   const salMeta=[val('sal_adr'),'Emploi : '+val('sal_poste'),val('sal_classif'),(val('sal_nir')?'N° SS : '+val('sal_nir'):''),(val('sal_entree')?'Entrée : '+dateLabel(val('sal_entree')):''),(c.cadre?'Statut : Cadre':'Statut : Non-cadre')].filter(Boolean).join('\n');
 
-  // gains
-  let gain=`<tr class="grp"><td colspan="6">Rémunération</td></tr>`;
-  const baseLib=c.mode==='mensuel'?'Salaire de base':`Salaire de base (${num('per_payees').toLocaleString('fr-FR')} h × ${eur(c.tauxH)})`;
-  gain+=`<tr><td>${baseLib}</td><td></td><td></td><td>${eur(c.base)}</td><td></td><td></td></tr>`;
-  if(c.hs25>0)gain+=`<tr><td>Heures supplémentaires 25 %</td><td></td><td></td><td>${eur(c.hs25)}</td><td></td><td></td></tr>`;
-  if(c.hs50>0)gain+=`<tr><td>Heures supplémentaires 50 %</td><td></td><td></td><td>${eur(c.hs50)}</td><td></td><td></td></tr>`;
-  if(c.prime>0)gain+=`<tr><td>${val('rem_prime_lib')||'Prime'}</td><td></td><td></td><td>${eur(c.prime)}</td><td></td><td></td></tr>`;
-  gain+=`<tr class="brut"><td>Salaire brut</td><td></td><td></td><td>${eur(c.brut)}</td><td class="muted">Coût employeur</td><td>${eur(c.coutTotal)}</td></tr>`;
-
-  let rows='',cur='';
-  c.lines.forEach(x=>{
-    if(x.grp!==cur){rows+=`<tr class="grp"><td colspan="6">${x.grp}</td></tr>`;cur=x.grp;}
-    rows+=`<tr><td>${x.lib}</td>
-      <td>${(x.bSal||x.bPat)?eur(x.bSal||x.bPat):''}</td>
-      <td>${x.tSal?pct(x.tSal):'<span class="muted">—</span>'}</td>
-      <td>${x.mSal?eur(x.mSal):'<span class="muted">—</span>'}</td>
-      <td>${x.tPat?pct(x.tPat):'<span class="muted">—</span>'}</td>
-      <td>${x.mPat?eur(x.mPat):'<span class="muted">—</span>'}</td></tr>`;
-  });
-  rows+=`<tr class="tot"><td>Total cotisations et contributions</td><td></td><td></td><td>${eur(c.totSal)}</td><td></td><td>${eur(c.totPat)}</td></tr>`;
-
-  const pasBlock=`<div class="pas-block pp-blur">
-    <div class="h">Impôt sur le revenu prélevé à la source</div>
-    <table>
-      <tr><td>Base (net imposable)${c.abatt?` − abattement contrat court ${eur(c.abatt)}`:''}</td><td>${eur(c.assiettePas)}</td></tr>
-      <tr><td>Taux appliqué — ${c.pasNature}</td><td>${pct(c.pasTaux)}</td></tr>
-      <tr><td>Montant de l'impôt prélevé</td><td>− ${eur(c.pas)}</td></tr>
-    </table></div>`;
-
   const tpl=val('pers_tpl')||'corporate', font=val('pers_font')||'sans', color=val('pers_color')||'#0e2342';
-  const bEl=$('bulletin');
-  bEl.className='bulletin tpl-'+tpl+' font-'+font;
-  bEl.style.setProperty('--navy', color);
-  bEl.style.setProperty('--navy-2', shadeColor(color,-16));
   const logoHTML = LOGO ? `<img class="logo-img" src="${LOGO}" alt="logo">` : '';
-  const html=`
+
+  function buildBulletinInner(c){
+    let gain=`<tr class="grp"><td colspan="6">Rémunération</td></tr>`;
+    const baseLib=c.mode==='mensuel'?'Salaire de base':`Salaire de base (${num('per_payees').toLocaleString('fr-FR')} h × ${eur(c.tauxH)})`;
+    gain+=`<tr><td>${baseLib}</td><td></td><td></td><td>${eur(c.base)}</td><td></td><td></td></tr>`;
+    if(c.hs25>0)gain+=`<tr><td>Heures supplémentaires 25 %</td><td></td><td></td><td>${eur(c.hs25)}</td><td></td><td></td></tr>`;
+    if(c.hs50>0)gain+=`<tr><td>Heures supplémentaires 50 %</td><td></td><td></td><td>${eur(c.hs50)}</td><td></td><td></td></tr>`;
+    if(c.prime>0)gain+=`<tr><td>${val('rem_prime_lib')||'Prime'}</td><td></td><td></td><td>${eur(c.prime)}</td><td></td><td></td></tr>`;
+    gain+=`<tr class="brut"><td>Salaire brut</td><td></td><td></td><td>${eur(c.brut)}</td><td class="muted">Coût employeur</td><td>${eur(c.coutTotal)}</td></tr>`;
+
+    let rows='',cur='';
+    c.lines.forEach(x=>{
+      if(x.grp!==cur){rows+=`<tr class="grp"><td colspan="6">${x.grp}</td></tr>`;cur=x.grp;}
+      rows+=`<tr><td>${x.lib}</td>
+        <td>${(x.bSal||x.bPat)?eur(x.bSal||x.bPat):''}</td>
+        <td>${x.tSal?pct(x.tSal):'<span class="muted">—</span>'}</td>
+        <td>${x.mSal?eur(x.mSal):'<span class="muted">—</span>'}</td>
+        <td>${x.tPat?pct(x.tPat):'<span class="muted">—</span>'}</td>
+        <td>${x.mPat?eur(x.mPat):'<span class="muted">—</span>'}</td></tr>`;
+    });
+    rows+=`<tr class="tot"><td>Total cotisations et contributions</td><td></td><td></td><td>${eur(c.totSal)}</td><td></td><td>${eur(c.totPat)}</td></tr>`;
+
+    const pasBlock=`<div class="pas-block pp-blur">
+      <div class="h">Impôt sur le revenu prélevé à la source</div>
+      <table>
+        <tr><td>Base (net imposable)${c.abatt?` − abattement contrat court ${eur(c.abatt)}`:''}</td><td>${eur(c.assiettePas)}</td></tr>
+        <tr><td>Taux appliqué — ${c.pasNature}</td><td>${pct(c.pasTaux)}</td></tr>
+        <tr><td>Montant de l'impôt prélevé</td><td>− ${eur(c.pas)}</td></tr>
+      </table></div>`;
+
+    return `
     <div class="bhead">
       <div class="co">${logoHTML}
         <div><div class="nm">${empNom||'—'}</div><div class="ad">${empAdr}</div></div></div>
@@ -693,7 +705,37 @@ function render(){
         Document généré à titre indicatif. Conservez ce bulletin sans limitation de durée. Les montants dépendent des taux et assiettes saisis ; vérifiez leur conformité (convention collective, effectif, taux AT/MP, plafonds et grille PAS en vigueur) avant remise au salarié.
       </div>
     </div>`;
-  $('bulletin').innerHTML=html;
+  }
+
+  const bEl=$('bulletin');
+  const N=serieCount();
+  if(N>1){
+    const orig={mode:val('rem_mode'),base:val('rem_base'),mois:val('per_mois'),paie:val('per_paie'),
+                cb:val('cum_brut'),ci:val('cum_imp'),cn:val('cum_net'),cp:val('cum_pas'),ch:val('cum_heures')};
+    let prior={brut:num('cum_brut'),imp:num('cum_imp'),net:num('cum_net'),pas:num('cum_pas'),heures:num('cum_heures')};
+    const start=val('per_mois')||defaultYM();
+    const months=[]; for(let i=0;i<N;i++){ months.push((serieMois[i]!=null && serieMois[i]!=='')?serieMois[i]:addMonths(start,i)); }
+    const sheets=[];
+    for(let i=0;i<N;i++){
+      const ym=months[i];
+      const b=(serieBrut[i]!=null && serieBrut[i]!=='')?serieBrut[i]:orig.base;
+      setField('rem_mode','mensuel'); setField('rem_base',b);
+      setField('per_mois',ym); setField('per_paie',endOfMonth(ym));
+      setField('cum_brut',prior.brut); setField('cum_imp',prior.imp); setField('cum_net',prior.net); setField('cum_pas',prior.pas); setField('cum_heures',prior.heures);
+      const cm=compute();
+      sheets.push(`<div class="bulletin tpl-${tpl} font-${font}" style="--navy:${color};--navy-2:${shadeColor(color,-16)}">${buildBulletinInner(cm)}</div>`);
+      prior={brut:cm.cum.brut,imp:cm.cum.imposable,net:cm.cum.net,pas:cm.cum.pas,heures:cm.cum.heures};
+    }
+    setField('rem_mode',orig.mode); setField('rem_base',orig.base); setField('per_mois',orig.mois); setField('per_paie',orig.paie);
+    setField('cum_brut',orig.cb); setField('cum_imp',orig.ci); setField('cum_net',orig.cn); setField('cum_pas',orig.cp); setField('cum_heures',orig.ch);
+    bEl.removeAttribute('style'); bEl.className='bulletin-series';
+    bEl.innerHTML=sheets.join('<div class="html2pdf__page-break"></div>');
+  } else {
+    bEl.className='bulletin tpl-'+tpl+' font-'+font;
+    bEl.style.setProperty('--navy', color);
+    bEl.style.setProperty('--navy-2', shadeColor(color,-16));
+    bEl.innerHTML=buildBulletinInner(c);
+  }
   if(typeof refreshWM==='function') refreshWM();
 }
 
@@ -701,7 +743,15 @@ async function exportPdf(){
   const el=$('bulletin');
   const who=(val('sal_nom')||'salarie').replace(/\s+/g,'-');
   const per=(val('per_mois')||'periode');
-  const filename=`bulletin_${who}_${per}.pdf`;
+  const series=el.classList.contains('bulletin-series');
+  const filename= series ? `bulletins_${who}_serie.pdf` : `bulletin_${who}_${per}.pdf`;
+  if(series){
+    if(typeof html2pdf!=='undefined'){
+      return html2pdf().set({margin:[6,6,6,6],filename,image:{type:'jpeg',quality:.98},
+        html2canvas:{scale:2,useCORS:true,backgroundColor:'#ffffff'},jsPDF:{unit:'mm',format:'a4',orientation:'portrait'},
+        pagebreak:{mode:['css','legacy']}}).from(el).save();
+    } else { alert("Module PDF indisponible. J'ouvre l'impression."); window.print(); return; }
+  }
   // Export "1 page A4" : on capture le bulletin et on l'ajuste pour tenir sur une seule page.
   if(typeof html2canvas!=='undefined' && window.jspdf && window.jspdf.jsPDF){
     try{
@@ -735,12 +785,13 @@ function refreshWM(){ if(window.Paywall){ if(Paywall.credits('fiche')>0) WM.hide
 if(window.Paywall){ WM=Paywall.mountWatermark($('bulletin').parentElement); refreshWM(); }
 async function tryDownload(){
   if(!window.Paywall){ exportPdf(); return; }            // mode démo (paywall non chargé)
-  if(Paywall.credits('fiche')>0){ Paywall.consume('fiche'); WM.hide(); await exportPdf(); refreshWM(); }
+  const need=serieCount();
+  if(Paywall.credits('fiche')>=need){ for(let i=0;i<need;i++)Paywall.consume('fiche'); WM.hide(); await exportPdf(); refreshWM(); }
   else { Paywall.openBuy('fiche'); }
 }
 $('btnPdf').onclick=tryDownload;
 $('btnPdf2').onclick=tryDownload;
-$('btnPrint').onclick=()=>{ if(window.Paywall && Paywall.credits('fiche')<=0){ Paywall.openBuy('fiche'); return; } window.print(); };
+$('btnPrint').onclick=()=>{ if(window.Paywall && Paywall.credits('fiche')<serieCount()){ Paywall.openBuy('fiche'); return; } window.print(); };
 $('btnReset').onclick=()=>{if(confirm('Réinitialiser tous les champs ?'))location.reload();};
 
 // --- Personnalisation : logo & couleurs ---
@@ -757,6 +808,40 @@ const PRESETS=['#0e2342','#2563c9','#0f766e','#15795b','#7a1f3d','#b45309','#5b2
 const sw=$('pers_swatches');
 PRESETS.forEach(col=>{ const b=document.createElement('button'); b.type='button'; b.style.background=col; b.title=col;
   b.onclick=()=>{ $('pers_color').value=col; render(); }; sw.appendChild(b); });
+
+/* ===== Série : plusieurs bulletins ===== */
+function defaultYM(){ const d=new Date(); return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0'); }
+function addMonths(ym,n){ const p=(ym||defaultYM()).split('-').map(Number); let y=p[0], m=(p[1]||1)-1+n; y+=Math.floor(m/12); m=((m%12)+12)%12; return y+'-'+String(m+1).padStart(2,'0'); }
+function endOfMonth(ym){ const p=(ym||defaultYM()).split('-').map(Number); const d=new Date(p[0], p[1], 0); return p[0]+'-'+String(p[1]).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
+function serieCount(){ const el=$('serie_n'); if(!el) return 1; let n=parseInt(el.value,10); if(!n||n<1)n=1; if(n>24)n=24; return n; }
+function setField(id,v){ const el=$(id); if(el!=null) el.value=v; }
+const serieBrut={};                              // brut saisi par mois : index -> valeur
+const serieMois={};                              // mois/année choisi : index -> "AAAA-MM"
+function serieBrutFor(i){ if(serieBrut[i]!=null && serieBrut[i]!=='') return serieBrut[i]; return val('rem_base'); }
+function serieMoisFor(i){ if(serieMois[i]!=null && serieMois[i]!=='') return serieMois[i]; return addMonths(val('per_mois')||defaultYM(), i); }
+function buildSerieRows(){
+  const box=$('serie_rows'); if(!box) return;
+  const n=serieCount();
+  if(n<=1){ box.style.display='none'; box.innerHTML=''; return; }
+  box.style.display='block';
+  let html='<div class="subhead">Choisissez le mois, l\'année et le brut de chaque bulletin</div>';
+  for(let i=0;i<n;i++){
+    html+='<div class="row" style="margin-top:8px">'
+      +'<div class="field"><label>Bulletin n°'+(i+1)+' — mois &amp; année</label><input class="serie-mois" data-i="'+i+'" type="month" value="'+serieMoisFor(i)+'"></div>'
+      +'<div class="field"><label>Brut (€)</label><input class="serie-brut" data-i="'+i+'" type="number" step="0.01" value="'+serieBrutFor(i)+'"></div>'
+      +'</div>';
+  }
+  box.innerHTML=html;
+  box.querySelectorAll('.serie-mois').forEach(inp=>{
+    inp.addEventListener('input',()=>{ serieMois[inp.getAttribute('data-i')]=inp.value; render(); });
+  });
+  box.querySelectorAll('.serie-brut').forEach(inp=>{
+    inp.addEventListener('input',()=>{ serieBrut[inp.getAttribute('data-i')]=inp.value; render(); });
+  });
+}
+$('serie_n').addEventListener('input',()=>{ buildSerieRows(); render(); });
+$('per_mois').addEventListener('input', buildSerieRows);
+buildSerieRows();
 
 render();
 </script>

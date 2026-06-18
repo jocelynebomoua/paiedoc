@@ -545,10 +545,10 @@ if(window.Paywall){ WM=Paywall.mountWatermark($('contract').parentElement); refr
 async function tryDownload(){
   if(!window.Paywall){ exportPdf(); return; }
   if(Paywall.credits('contrat')>0){ Paywall.consume('contrat'); WM.hide(); await exportPdf(); refreshWM(); }
-  else { Paywall.openBuy('bundle'); }
+  else { Paywall.openBuy('contrat'); }
 }
 $('btnPdf').onclick=tryDownload;$('btnPdf2').onclick=tryDownload;
-$('btnPrint').onclick=()=>{ if(window.Paywall && Paywall.credits('contrat')<=0){ Paywall.openBuy('bundle'); return; } window.print(); };
+$('btnPrint').onclick=()=>{ if(window.Paywall && Paywall.credits('contrat')<=0){ Paywall.openBuy('contrat'); return; } window.print(); };
 $('btnReset').onclick=()=>{if(confirm('Réinitialiser tous les champs ?'))location.reload();};
 
 /* ---- Personnalisation : teintes rapides & logo ---- */
