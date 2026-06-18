@@ -718,7 +718,7 @@ async function exportPdf(){
     }catch(e){ /* repli ci-dessous */ }
   }
   if(typeof html2pdf!=='undefined'){
-    html2pdf().set({margin:[6,6,6,6],filename,image:{type:'jpeg',quality:.98},
+    return html2pdf().set({margin:[6,6,6,6],filename,image:{type:'jpeg',quality:.98},
       html2canvas:{scale:2,useCORS:true,backgroundColor:'#ffffff'},jsPDF:{unit:'mm',format:'a4',orientation:'portrait'}}).from(el).save();
   } else { alert("Module PDF indisponible. J'ouvre l'impression : choisissez « Enregistrer au format PDF »."); window.print(); }
 }
@@ -732,9 +732,9 @@ document.addEventListener('change',e=>{
 let WM={show(){},hide(){}};
 function refreshWM(){ if(window.Paywall){ if(Paywall.credits('fiche')>0) WM.hide(); else WM.show(); } }
 if(window.Paywall){ WM=Paywall.mountWatermark($('bulletin').parentElement); refreshWM(); }
-function tryDownload(){
+async function tryDownload(){
   if(!window.Paywall){ exportPdf(); return; }            // mode démo (paywall non chargé)
-  if(Paywall.credits('fiche')>0){ Paywall.consume('fiche'); WM.hide(); exportPdf(); refreshWM(); }
+  if(Paywall.credits('fiche')>0){ Paywall.consume('fiche'); WM.hide(); await exportPdf(); refreshWM(); }
   else { Paywall.openBuy('fiche'); }
 }
 $('btnPdf').onclick=tryDownload;

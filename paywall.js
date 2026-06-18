@@ -44,7 +44,11 @@
 
   /* ---------- styles injectés ---------- */
   var css = ""
-  + ".pp-wm{position:absolute;inset:0;pointer-events:none;z-index:6;background-repeat:repeat;}"
+  + ".pp-protect{position:absolute;inset:0;z-index:6;display:none;align-items:flex-start;justify-content:center;padding:30px 16px;}"
+  + ".pp-lock{background:rgba(255,255,255,.96);border:1px solid #cdd6e3;border-radius:14px;padding:20px 24px;text-align:center;max-width:300px;box-shadow:0 14px 44px rgba(10,20,35,.22);color:#0e2342;}"
+  + ".pp-lock svg{color:#2c3a4f;}"
+  + ".pp-lock-t{font-weight:700;font-size:15px;margin-top:8px;color:#16202e;}"
+  + ".pp-lock-s{font-size:12.5px;color:#5d6b7e;margin-top:5px;line-height:1.45;}"
   + ".pp-modal{position:fixed;inset:0;z-index:99999;background:rgba(10,20,35,.55);display:none;align-items:center;justify-content:center;padding:20px;font-family:ui-sans-serif,-apple-system,'Segoe UI',Roboto,sans-serif;}"
   + ".pp-modal.open{display:flex;}"
   + ".pp-card{background:#fff;border-radius:14px;max-width:440px;width:100%;padding:24px;box-shadow:0 24px 70px rgba(10,20,35,.45);}"
@@ -61,15 +65,31 @@
   + ".pp-x{background:none;border:0;color:#94a1b2;font-size:13px;cursor:pointer;margin-top:10px;width:100%;}";
   var st = document.createElement("style"); st.textContent = css; document.head.appendChild(st);
 
-  /* ---------- filigrane SPÉCIMEN ---------- */
+  /* ---------- protection de l'aperçu : floutage ---------- */
   function mountWatermark(el){
     if(!el) return { show:function(){}, hide:function(){} };
     el.style.position = "relative";
-    var wm = document.createElement("div"); wm.className = "pp-wm"; wm.setAttribute("aria-hidden","true");
-    var svg = "<svg xmlns='http://www.w3.org/2000/svg' width='300' height='170'><text x='8' y='105' transform='rotate(-28 150 90)' font-family='Arial,sans-serif' font-size='27' font-weight='700' fill='rgba(37,99,201,0.13)'>SP\u00C9CIMEN</text></svg>";
-    wm.style.backgroundImage = "url(\"data:image/svg+xml;utf8," + encodeURIComponent(svg) + "\")";
-    el.appendChild(wm);
-    return { show:function(){ wm.style.display=""; }, hide:function(){ wm.style.display="none"; } };
+    var ov = document.createElement("div"); ov.className = "pp-protect"; ov.setAttribute("aria-hidden","true");
+    ov.innerHTML =
+      "<div class='pp-lock'>"
+      + "<svg width='30' height='30' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'><rect x='4' y='10.5' width='16' height='9.5' rx='2'/><path d='M8 10.5V7a4 4 0 0 1 8 0v3.5'/></svg>"
+      + "<div class='pp-lock-t'>Aper\u00e7u prot\u00e9g\u00e9</div>"
+      + "<div class='pp-lock-s'>T\u00e9l\u00e9chargez le document pour obtenir la version nette et compl\u00e8te.</div>"
+      + "</div>";
+    el.appendChild(ov);
+    function setProtected(on){
+      var kids = el.children;
+      for(var i=0;i<kids.length;i++){
+        if(kids[i]===ov) continue;
+        kids[i].style.filter = on ? "blur(6px)" : "";
+        kids[i].style.webkitFilter = on ? "blur(6px)" : "";
+        kids[i].style.userSelect = on ? "none" : "";
+        kids[i].style.webkitUserSelect = on ? "none" : "";
+        kids[i].style.pointerEvents = on ? "none" : "";
+      }
+      ov.style.display = on ? "flex" : "none";
+    }
+    return { show:function(){ setProtected(true); }, hide:function(){ setProtected(false); } };
   }
 
   /* ---------- fenêtre d'achat ---------- */
@@ -79,7 +99,7 @@
     modalEl.innerHTML =
       "<div class='pp-card'>"
       + "<h3>D\u00e9bloquer le t\u00e9l\u00e9chargement</h3>"
-      + "<p class='pp-sub'>Votre document est pr\u00eat. Choisissez une formule pour t\u00e9l\u00e9charger le PDF sans filigrane.</p>"
+      + "<p class='pp-sub'>Votre document est pr\u00eat. Choisissez une formule pour t\u00e9l\u00e9charger le PDF net et complet.</p>"
       + "<div class='pp-opt' data-p='fiche'><span class='l'>1 fiche de paie</span><span class='pr'>10 \u20ac</span></div>"
       + "<div class='pp-opt' data-p='bundle'><span class='l'>Pack 3 fiches + 1 contrat</span><span class='pr'>50 \u20ac</span></div>"
       + "<label class='pp-att'><input type='checkbox' id='pp-att-chk'> Je certifie sur l'honneur \u00eatre employeur ou d\u00fbment mandat\u00e9, et utiliser ce service uniquement pour produire des documents authentiques, \u00e0 des fins l\u00e9gitimes.</label>"

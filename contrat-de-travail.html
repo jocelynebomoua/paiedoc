@@ -526,7 +526,7 @@ function exportPdf(){
   const who=(val('s_nom')||'salarie').replace(/\s+/g,'-');
   const opt={margin:[8,7,8,7],filename:`contrat_${val('c_type')}_${who}.pdf`,image:{type:'jpeg',quality:.98},
     html2canvas:{scale:2,useCORS:true,backgroundColor:'#ffffff'},jsPDF:{unit:'mm',format:'a4',orientation:'portrait'},pagebreak:{mode:['css','legacy']}};
-  if(typeof html2pdf!=='undefined'){html2pdf().set(opt).from(el).save();}
+  if(typeof html2pdf!=='undefined'){return html2pdf().set(opt).from(el).save();}
   else{alert("Module PDF indisponible (réseau). J'ouvre l'impression : choisissez « Enregistrer au format PDF ».");window.print();}
 }
 
@@ -542,9 +542,9 @@ document.addEventListener('change',e=>{
 let WM={show(){},hide(){}};
 function refreshWM(){ if(window.Paywall){ if(Paywall.credits('contrat')>0) WM.hide(); else WM.show(); } }
 if(window.Paywall){ WM=Paywall.mountWatermark($('contract').parentElement); refreshWM(); }
-function tryDownload(){
+async function tryDownload(){
   if(!window.Paywall){ exportPdf(); return; }
-  if(Paywall.credits('contrat')>0){ Paywall.consume('contrat'); WM.hide(); exportPdf(); refreshWM(); }
+  if(Paywall.credits('contrat')>0){ Paywall.consume('contrat'); WM.hide(); await exportPdf(); refreshWM(); }
   else { Paywall.openBuy('bundle'); }
 }
 $('btnPdf').onclick=tryDownload;$('btnPdf2').onclick=tryDownload;
@@ -586,7 +586,7 @@ $('btnReset').onclick=()=>{if(confirm('Réinitialiser tous les champs ?'))locati
       const fj=FORMES[r.nature_juridique]; if(fj) setVal('e_forme',fj);
       setVal('e_siege', siege.adresse||'');
       setVal('e_siret', siege.siret||raw);
-      setVal('e_ape', r.activite_principale||'');
+      setVal('e_ape', r.activite_principale||siege.activite_principale||'');
       msg.style.color='#067647'; msg.textContent="✓ Informations remplies. Vérifiez les champs avant de générer le contrat.";
       render();
     }catch(e){
