@@ -49,6 +49,11 @@
   + ".pp-lock svg{color:#2c3a4f;}"
   + ".pp-lock-t{font-weight:700;font-size:15px;margin-top:8px;color:#16202e;}"
   + ".pp-lock-s{font-size:12.5px;color:#5d6b7e;margin-top:5px;line-height:1.45;}"
+  + ".pp-protect.pp-band{background:transparent;pointer-events:none;align-items:center;justify-content:center;}"
+  + ".pp-protect.pp-band .pp-lock{display:flex;align-items:center;gap:9px;padding:11px 16px;max-width:none;}"
+  + ".pp-protect.pp-band .pp-lock svg{width:20px;height:20px;}"
+  + ".pp-protect.pp-band .pp-lock-t{margin-top:0;font-size:13px;}"
+  + ".pp-protect.pp-band .pp-lock-s{display:none;}"
   + ".pp-modal{position:fixed;inset:0;z-index:99999;background:rgba(10,20,35,.55);display:none;align-items:center;justify-content:center;padding:20px;font-family:ui-sans-serif,-apple-system,'Segoe UI',Roboto,sans-serif;}"
   + ".pp-modal.open{display:flex;}"
   + ".pp-card{background:#fff;border-radius:14px;max-width:440px;width:100%;padding:24px;box-shadow:0 24px 70px rgba(10,20,35,.45);}"
@@ -77,17 +82,26 @@
       + "<div class='pp-lock-s'>T\u00e9l\u00e9chargez le document pour obtenir la version nette et compl\u00e8te.</div>"
       + "</div>";
     el.appendChild(ov);
+    function clearAll(){
+      var k = el.children, i;
+      for(i=0;i<k.length;i++){ if(k[i]===ov) continue; k[i].style.filter=""; k[i].style.webkitFilter=""; k[i].style.userSelect=""; k[i].style.webkitUserSelect=""; k[i].style.pointerEvents=""; }
+      var z = el.querySelectorAll(".pp-blur");
+      for(i=0;i<z.length;i++){ z[i].style.filter=""; z[i].style.webkitFilter=""; z[i].style.userSelect=""; z[i].style.webkitUserSelect=""; z[i].style.pointerEvents=""; }
+    }
+    function blurEl(x,r){ x.style.filter="blur("+r+"px)"; x.style.webkitFilter="blur("+r+"px)"; x.style.userSelect="none"; x.style.webkitUserSelect="none"; x.style.pointerEvents="none"; }
     function setProtected(on){
-      var kids = el.children;
-      for(var i=0;i<kids.length;i++){
-        if(kids[i]===ov) continue;
-        kids[i].style.filter = on ? "blur(6px)" : "";
-        kids[i].style.webkitFilter = on ? "blur(6px)" : "";
-        kids[i].style.userSelect = on ? "none" : "";
-        kids[i].style.webkitUserSelect = on ? "none" : "";
-        kids[i].style.pointerEvents = on ? "none" : "";
+      clearAll();
+      if(!on){ ov.style.display="none"; return; }
+      var zones = el.querySelectorAll(".pp-blur"), i;
+      if(zones.length){                                  // mode "bandes" : on floute seulement les zones marquées
+        for(i=0;i<zones.length;i++){ blurEl(zones[i],7); }
+        ov.classList.add("pp-band");
+      } else {                                           // mode plein : on floute tout le contenu
+        var k = el.children;
+        for(i=0;i<k.length;i++){ if(k[i]===ov) continue; blurEl(k[i],6); }
+        ov.classList.remove("pp-band");
       }
-      ov.style.display = on ? "flex" : "none";
+      ov.style.display = "flex";
     }
     return { show:function(){ setProtected(true); }, hide:function(){ setProtected(false); } };
   }

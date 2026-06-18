@@ -629,7 +629,7 @@ function render(){
   });
   rows+=`<tr class="tot"><td>Total cotisations et contributions</td><td></td><td></td><td>${eur(c.totSal)}</td><td></td><td>${eur(c.totPat)}</td></tr>`;
 
-  const pasBlock=`<div class="pas-block">
+  const pasBlock=`<div class="pas-block pp-blur">
     <div class="h">Impôt sur le revenu prélevé à la source</div>
     <table>
       <tr><td>Base (net imposable)${c.abatt?` − abattement contrat court ${eur(c.abatt)}`:''}</td><td>${eur(c.assiettePas)}</td></tr>
@@ -654,7 +654,7 @@ function render(){
         <div class="pbox"><div class="lab">Employeur</div><div class="nm">${empNom||'—'}</div><div class="mt">${empMeta}</div></div>
         <div class="pbox emp"><div class="lab">Salarié·e</div><div class="nm">${salNom||'—'}</div><div class="mt">${salMeta}</div></div>
       </div>
-      <table class="cot">
+      <table class="cot pp-blur">
         <thead><tr><th>Libellé</th><th>Base</th><th>Taux sal.</th><th>Part salarié</th><th>Taux pat.</th><th>Part employeur</th></tr></thead>
         <tbody>${gain}${rows}</tbody>
       </table>
@@ -666,7 +666,7 @@ function render(){
       </div>
       ${pasBlock}
       <div class="results"><div class="rc net"><div class="k">Net payé au salarié (après impôt)</div><div class="v">${eur(c.netAPayer)}</div></div></div>
-      <div class="extra-grid">
+      <div class="extra-grid pp-blur">
         <div class="cp-block">
           <div class="h">Congés payés (jours ouvrables)</div>
           <table>
@@ -689,11 +689,12 @@ function render(){
         </div>
       </div>
       <div class="bfoot">
-        <div class="cum"><span>Salaire brut : <b>${eur(c.brut)}</b></span><span>Cotisations salariales : <b>${eur(c.totSal)}</b></span><span>Impôt prélevé : <b>${eur(c.pas)}</b></span></div>
+        <div class="cum pp-blur"><span>Salaire brut : <b>${eur(c.brut)}</b></span><span>Cotisations salariales : <b>${eur(c.totSal)}</b></span><span>Impôt prélevé : <b>${eur(c.pas)}</b></span></div>
         Document généré à titre indicatif. Conservez ce bulletin sans limitation de durée. Les montants dépendent des taux et assiettes saisis ; vérifiez leur conformité (convention collective, effectif, taux AT/MP, plafonds et grille PAS en vigueur) avant remise au salarié.
       </div>
     </div>`;
   $('bulletin').innerHTML=html;
+  if(typeof refreshWM==='function') refreshWM();
 }
 
 async function exportPdf(){
