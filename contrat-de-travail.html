@@ -99,6 +99,33 @@
   .c-sign .col .line{margin-top:46px;border-top:1px solid #1a2530;}
   .c-foot{margin-top:30px;border-top:1px solid var(--line);padding-top:10px;font-family:var(--sans);font-size:9.5px;color:var(--faint);line-height:1.55;}
 
+  /* ---- Personnalisation : logo, police, modèles ---- */
+  .chead .logo{height:44px;width:auto;max-width:175px;object-fit:contain;display:block;}
+  .contract.font-sans .cbody{font-family:var(--sans);}
+
+  .contract.tpl-moderne .chead{background:#fff;color:var(--navy);border-bottom:2px solid var(--accent);}
+  .contract.tpl-moderne .chead .co .ad{color:var(--muted);}
+  .contract.tpl-moderne .chead .ref{color:var(--accent);background:var(--accent-soft);border:1px solid var(--accent-line);padding:7px 11px;border-radius:8px;}
+
+  .contract.tpl-bandeau{border-left:6px solid var(--accent);}
+
+  .contract.tpl-epure .chead{background:#fff;color:var(--navy);padding:22px 40px 16px;border-bottom:1px solid var(--line);}
+  .contract.tpl-epure .chead .co .ad{color:var(--muted);}
+  .contract.tpl-epure .chead .ref{color:var(--muted);}
+  .contract.tpl-epure .c-title .rule{background:var(--navy);}
+
+  .contract.tpl-classique .chead{background:#fff;color:var(--navy);flex-direction:column;text-align:center;gap:8px;border-bottom:2px double var(--navy);padding:26px 40px;}
+  .contract.tpl-classique .chead .co{flex-direction:column;text-align:center;gap:8px;}
+  .contract.tpl-classique .chead .co .ad{color:var(--muted);}
+  .contract.tpl-classique .chead .ref{text-align:center;color:var(--muted);}
+  .contract.tpl-classique .chead .logo{margin:0 auto;}
+
+  .contract.tpl-compact .chead{padding:16px 30px;}
+  .contract.tpl-compact .cbody{padding:26px 32px 30px;}
+  .contract.tpl-compact .c-pre{font-size:12px;}
+  .contract.tpl-compact .c-art{margin-top:15px;}
+  .contract.tpl-compact .c-art p,.contract.tpl-compact .c-art ul{font-size:11.8px;line-height:1.6;}
+
   @media print{
     body{background:#fff;}
     .topbar,.notice,.form-col,.over{display:none!important;}
@@ -291,6 +318,34 @@
         </div>
       </section>
 
+      <section class="card">
+        <header><div class="ic">🎨</div><div><h2>Personnalisation</h2><div class="desc">Modèle, couleur, police et logo</div></div></header>
+        <div class="body">
+          <div class="row">
+            <div class="field"><label>Modèle</label><select id="pers_tpl">
+              <option value="corporate">Corporate (bandeau foncé)</option>
+              <option value="moderne">Moderne</option>
+              <option value="bandeau">Filet latéral</option>
+              <option value="epure">Épuré</option>
+              <option value="classique">Classique (centré)</option>
+              <option value="compact">Compact</option>
+            </select></div>
+            <div class="field"><label>Police du texte</label><select id="pers_font">
+              <option value="serif">Élégante (à empattements)</option>
+              <option value="sans">Moderne (sans empattement)</option>
+            </select></div>
+          </div>
+          <div class="row" style="margin-top:12px;align-items:flex-end">
+            <div class="field"><label>Couleur principale</label><input type="color" id="pers_color" value="#0e2342" style="height:44px;padding:4px"></div>
+            <div class="field"><label>Teintes rapides</label><div id="pers_swatches" style="display:flex;gap:7px;flex-wrap:wrap"></div></div>
+          </div>
+          <div class="row one" style="margin-top:12px"><div class="field full"><label>Logo (optionnel)</label>
+            <input type="file" id="pers_logo" accept="image/*">
+            <button type="button" class="btn-ghost" id="pers_logo_clear" style="margin-top:8px;display:none">Retirer le logo</button>
+          </div></div>
+        </div>
+      </section>
+
       <div class="actions">
         <button class="btn-primary" id="btnPdf">Télécharger le contrat en PDF</button>
         <button class="btn-ghost" id="btnPrint">Imprimer</button>
@@ -319,6 +374,8 @@ const dlong=v=>{if(!v)return'…';const[y,m,d]=v.split('-');return parseInt(d,10
 const initials=s=>{const w=(s||'').replace(/[^A-Za-zÀ-ÿ0-9 ]/g,'').trim().split(/\s+/).filter(Boolean);return((w[0]?.[0]||'?')+(w[1]?.[0]||'')).toUpperCase();};
 const esc=s=>(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 const civAccord=civ=>civ==='Madame'?'e':''; // pour "dénommé(e)"
+let LOGO='';
+function shadeColor(hex,p){let c=(hex||'#0e2342').replace('#','');if(c.length===3)c=c.split('').map(x=>x+x).join('');const num=parseInt(c,16);let r=(num>>16)&255,g=(num>>8)&255,b=num&255;const t=p<0?0:255,a=Math.abs(p)/100;r=Math.round((t-r)*a)+r;g=Math.round((t-g)*a)+g;b=Math.round((t-b)*a)+b;return'#'+(1<<24|r<<16|g<<8|b).toString(16).slice(1);}
 
 function render(){
   const type=val('c_type'), isCDD=type==='cdd';
@@ -418,9 +475,12 @@ function render(){
   let arts='';
   A.forEach((a,i)=>{arts+=`<div class="c-art"><h3><span class="n">Art. ${i+1}</span> ${a.t}</h3>${a.h}</div>`;});
 
+  const tpl=val('pers_tpl')||'corporate', font=val('pers_font')||'serif';
+  const logoHTML = LOGO?`<img class="logo" src="${LOGO}" alt="logo">`:'';
+
   const html=`
     <div class="chead">
-      <div class="co"><div class="mono">${initials(val('e_nom'))}</div>
+      <div class="co">${logoHTML}
         <div><div class="nm">${esc(val('e_nom'))||'—'}</div><div class="ad">${esc(val('e_siege'))}</div></div></div>
       <div class="ref">${isCDD?'CDD':'CDI'}<br>${val('sg_date')?dlong(val('sg_date')):''}</div>
     </div>
@@ -450,6 +510,14 @@ function render(){
       <div class="c-foot">Modèle généré à titre indicatif — à adapter à votre situation et à votre convention collective, et à faire valider par un professionnel du droit avant signature.</div>
     </div>`;
   $('contract').innerHTML=html;
+  const root=$('contract');
+  const color=val('pers_color')||'#0e2342';
+  root.className='contract tpl-'+tpl+' font-'+font;
+  root.style.setProperty('--navy',color);
+  root.style.setProperty('--navy-2',shadeColor(color,-16));
+  root.style.setProperty('--accent',color);
+  root.style.setProperty('--accent-soft',shadeColor(color,86));
+  root.style.setProperty('--accent-line',shadeColor(color,60));
 }
 
 function exportPdf(){
@@ -481,6 +549,19 @@ function tryDownload(){
 $('btnPdf').onclick=tryDownload;$('btnPdf2').onclick=tryDownload;
 $('btnPrint').onclick=()=>{ if(window.Paywall && Paywall.credits('contrat')<=0){ Paywall.openBuy('bundle'); return; } window.print(); };
 $('btnReset').onclick=()=>{if(confirm('Réinitialiser tous les champs ?'))location.reload();};
+
+/* ---- Personnalisation : teintes rapides & logo ---- */
+(function(){
+  const SW=['#0e2342','#1f3a5f','#244c5a','#3a3f4b','#5b2a3a','#2f4636','#3b2f5b','#1f2937'];
+  const box=$('pers_swatches');
+  if(box){ SW.forEach(c=>{ const b=document.createElement('button'); b.type='button'; b.title=c;
+    b.style.cssText='width:26px;height:26px;border-radius:7px;border:1px solid rgba(0,0,0,.15);cursor:pointer;background:'+c;
+    b.onclick=()=>{ $('pers_color').value=c; render(); }; box.appendChild(b); }); }
+  const fi=$('pers_logo'), clr=$('pers_logo_clear');
+  if(fi){ fi.addEventListener('change',()=>{ const f=fi.files&&fi.files[0]; if(!f)return;
+    const r=new FileReader(); r.onload=()=>{ LOGO=r.result; if(clr)clr.style.display='inline-block'; render(); }; r.readAsDataURL(f); }); }
+  if(clr){ clr.onclick=()=>{ LOGO=''; if(fi)fi.value=''; clr.style.display='none'; render(); }; }
+})();
 render();
 </script>
 </body>
