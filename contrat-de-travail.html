@@ -182,19 +182,20 @@
       <section class="card">
         <header><div class="ic">2</div><div><h2>Employeur</h2><div class="desc">L'entreprise qui embauche</div></div></header>
         <div class="body">
-          <div class="row one"><div class="field full"><label>Raison sociale</label><input id="e_nom" value="Ma Société"></div></div>
-          <div class="row">
-            <div class="field"><label>Forme juridique</label><input id="e_forme" value="SAS"></div>
-            <div class="field"><label>Capital social (€)</label><input id="e_capital" value="10 000"></div>
+          <div style="background:var(--accent-soft);border:1px solid var(--accent-line);border-radius:10px;padding:14px;margin-bottom:14px">
+            <label style="font-weight:700;color:var(--accent);display:block;margin-bottom:6px">⚡ Remplissage automatique par SIRET / SIREN</label>
+            <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+              <input id="af_siret" placeholder="Ex. 552 100 554 00021" inputmode="numeric" style="flex:1;min-width:200px">
+              <button type="button" class="btn-primary" id="af_btn" style="flex:0 0 auto;min-width:0">Rechercher</button>
+            </div>
+            <div id="af_msg" style="font-size:12px;color:var(--muted);margin-top:8px">Tapez le SIREN (9 chiffres) ou le SIRET (14 chiffres) de l'entreprise, puis « Rechercher ».</div>
           </div>
+          <div class="row one"><div class="field full"><label>Raison sociale</label><input id="e_nom" value="Ma Société"></div></div>
+          <div class="row one"><div class="field full"><label>Forme juridique</label><input id="e_forme" value="SAS"></div></div>
           <div class="row one" style="margin-top:12px"><div class="field full"><label>Siège social</label><input id="e_siege" value="12 rue de l'Exemple, 75011 Paris"></div></div>
           <div class="row">
             <div class="field"><label>SIRET</label><input id="e_siret" value="123 456 789 00012"></div>
             <div class="field"><label>Code APE / NAF</label><input id="e_ape" value="6201Z"></div>
-          </div>
-          <div class="row" style="margin-top:12px">
-            <div class="field"><label>Représentée par</label><input id="e_rep" value="Jean Dupont"></div>
-            <div class="field"><label>En qualité de</label><input id="e_qualite" value="Président"></div>
           </div>
         </div>
       </section>
@@ -384,7 +385,7 @@ function render(){
   const titre=isCDD?'Contrat de travail à durée déterminée':'Contrat de travail à durée indéterminée';
 
   // ---- préambule ----
-  let empLine=`<b>${esc(val('e_nom'))}</b>, ${esc(val('e_forme'))} au capital de ${esc(val('e_capital'))} euros, dont le siège social est situé ${esc(val('e_siege'))}, immatriculée sous le numéro SIRET ${esc(val('e_siret'))}, code APE ${esc(val('e_ape'))}, représentée par ${esc(val('e_rep'))}, agissant en qualité de ${esc(val('e_qualite'))}, dûment habilité(e) aux fins des présentes,`;
+  let empLine=`<b>${esc(val('e_nom'))}</b>, ${esc(val('e_forme'))}, dont le siège social est situé ${esc(val('e_siege'))}, immatriculée sous le numéro SIRET ${esc(val('e_siret'))}, code APE ${esc(val('e_ape'))},`;
   let etatcivil=[];
   if(val('s_naiss'))etatcivil.push('né'+e+' le '+dlong(val('s_naiss')));
   if(val('s_lieu'))etatcivil.push('à '+esc(val('s_lieu')));
@@ -502,7 +503,7 @@ function render(){
       <div class="c-sign">
         <p class="made">Fait à ${esc(val('sg_lieu'))||'…'}, le ${val('sg_date')?dlong(val('sg_date')):'…'}, en ${esc(val('sg_ex'))||'deux'} exemplaires originaux, dont un remis au Salarié.</p>
         <div class="cols">
-          <div class="col"><div class="who">L'Employeur</div><div class="men">${esc(val('e_rep'))}, ${esc(val('e_qualite'))}</div><div class="line"></div></div>
+          <div class="col"><div class="who">L'Employeur</div><div class="men">&nbsp;</div><div class="line"></div></div>
           <div class="col"><div class="who">Le Salarié</div><div class="men">Précédé de la mention « Lu et approuvé »</div><div class="line"></div></div>
         </div>
       </div>
@@ -561,6 +562,40 @@ $('btnReset').onclick=()=>{if(confirm('Réinitialiser tous les champs ?'))locati
   if(fi){ fi.addEventListener('change',()=>{ const f=fi.files&&fi.files[0]; if(!f)return;
     const r=new FileReader(); r.onload=()=>{ LOGO=r.result; if(clr)clr.style.display='inline-block'; render(); }; r.readAsDataURL(f); }); }
   if(clr){ clr.onclick=()=>{ LOGO=''; if(fi)fi.value=''; clr.style.display='none'; render(); }; }
+})();
+
+/* ---- Remplissage auto via l'API Recherche d'entreprises (gouv.fr) ---- */
+(function(){
+  const btn=$('af_btn'), inp=$('af_siret'), msg=$('af_msg');
+  if(!btn||!inp) return;
+  const FORMES={'1000':'Entrepreneur individuel','5202':'Société en nom collectif (SNC)','5306':'Société anonyme (SA)','5410':'SARL','5498':'SARL','5499':'Société à responsabilité limitée (SARL)','5505':'Société anonyme (SA)','5510':'Société anonyme (SA)','5599':'Société anonyme (SA)','5710':'Société par actions simplifiée (SAS)','5720':'SAS unipersonnelle (SASU)','5785':'Société par actions simplifiée (SAS)','6540':'Société civile immobilière (SCI)','6541':'SCI','9220':'Association déclarée'};
+  const setVal=(id,v)=>{ const el=$(id); if(el&&v){ el.value=v; } };
+  async function search(){
+    const raw=(inp.value||'').replace(/\s+/g,'');
+    if(!/^\d{9}(\d{5})?$/.test(raw)){ msg.style.color='#b54708'; msg.textContent="Entrez un SIREN (9 chiffres) ou un SIRET (14 chiffres)."; return; }
+    msg.style.color=''; msg.textContent="Recherche en cours…"; btn.disabled=true;
+    try{
+      const url='/api/entreprise?q='+encodeURIComponent(raw);
+      const res=await fetch(url);
+      if(!res.ok) throw new Error('HTTP '+res.status);
+      const data=await res.json();
+      const r=(data.results||[])[0];
+      if(!r){ msg.style.color='#b54708'; msg.textContent="Aucune entreprise trouvée pour ce numéro."; return; }
+      const siege=r.siege||{};
+      setVal('e_nom', r.nom_raison_sociale||r.nom_complet);
+      const fj=FORMES[r.nature_juridique]; if(fj) setVal('e_forme',fj);
+      setVal('e_siege', siege.adresse||'');
+      setVal('e_siret', siege.siret||raw);
+      setVal('e_ape', r.activite_principale||'');
+      msg.style.color='#067647'; msg.textContent="✓ Informations remplies. Vérifiez les champs avant de générer le contrat.";
+      render();
+    }catch(e){
+      msg.style.color='#b54708';
+      msg.textContent="Impossible de contacter le registre pour l'instant. Réessayez, ou remplissez les champs à la main.";
+    }finally{ btn.disabled=false; }
+  }
+  btn.onclick=search;
+  inp.addEventListener('keydown',e=>{ if(e.key==='Enter'){ e.preventDefault(); search(); } });
 })();
 render();
 </script>
