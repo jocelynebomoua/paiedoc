@@ -6,8 +6,9 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
 // Prix en centimes. Modifiez ici pour changer vos tarifs.
 const PRODUCTS = {
-  fiche:  { name: "Fiche de paie (1 document)",            amount: 1000 }, // 10,00 €
-  bundle: { name: "Pack 3 fiches de paie + 1 contrat",     amount: 5000 }  // 50,00 €
+  fiche:   { name: "Fiche de paie (1 document)",        amount: 1000 }, // 10,00 €
+  contrat: { name: "Contrat de travail (1 document)",   amount: 3000 }, // 30,00 €
+  bundle:  { name: "Pack 3 fiches de paie + 1 contrat", amount: 5000 }  // 50,00 €
 };
 
 module.exports = async (req, res) => {
