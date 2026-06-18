@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Documents RH en ligne — fiches de paie & contrats</title>
+<meta name="description" content="Fiches de paie et contrats de travail conformes, générés en quelques minutes. Pour employeurs et TPE. Paiement à l'unité, sans abonnement.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#14171c; --ink-2:#2a2f37; --muted:#5f6670; --faint:#98a0ab;
+    --line:#d4dbe3; --line-2:#c2ccd7; --bg:#e1e6ec; --bg-soft:#d7dee6; --panel:#ffffff;
+    --dark:#14181f; --accent:#2c3a4f;
+    --sans:"Inter",ui-sans-serif,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    --serif:"Sora",ui-sans-serif,-apple-system,"Segoe UI",Roboto,sans-serif;
+  }
+  *{box-sizing:border-box;}html,body{margin:0;padding:0;}
+  body{font-family:var(--sans);color:var(--ink);background:var(--bg);line-height:1.55;-webkit-font-smoothing:antialiased;}
+  a{color:inherit;text-decoration:none;}
+  .container{max-width:1080px;margin:0 auto;padding:0 24px;}
+  h1,h2,h3{font-family:var(--serif);font-weight:600;letter-spacing:-.01em;}
+
+  /* Nav */
+  nav{position:sticky;top:0;z-index:50;background:rgba(255,255,255,.92);backdrop-filter:saturate(180%) blur(10px);border-bottom:1px solid var(--line);}
+  nav .in{max-width:1080px;margin:0 auto;padding:13px 24px;display:flex;align-items:center;gap:16px;}
+  .brand{display:flex;align-items:center;gap:10px;font-family:var(--serif);font-weight:700;font-size:19px;letter-spacing:.01em;color:var(--ink);}
+  .brand .logo{width:28px;height:28px;color:var(--ink);flex:0 0 auto;}
+  nav .links{margin-left:auto;display:flex;gap:6px;align-items:center;font-size:14px;}
+  nav .links a{color:var(--ink-2);padding:8px 14px;border-radius:8px;font-weight:550;transition:background .12s,color .12s;}
+  nav .links a:hover{background:var(--bg-soft);color:var(--ink);}
+
+  /* Hero with photo background */
+  .hero{position:relative;color:#fff;padding:96px 0 104px;text-align:center;
+    background:linear-gradient(rgba(14,18,25,.55),rgba(14,18,25,.8)), url('hero.jpg') center/cover no-repeat, #14181f;}
+  .hero .container{animation:heroIn .7s cubic-bezier(.2,.7,.2,1) both;}
+  @keyframes heroIn{from{opacity:0;transform:translateY(16px);}to{opacity:1;transform:none;}}
+  .hero .eyebrow{display:inline-block;font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:#cdd5df;border:1px solid rgba(255,255,255,.28);padding:6px 13px;border-radius:999px;}
+  .hero h1{font-size:50px;font-weight:600;line-height:1.07;letter-spacing:-.028em;margin:22px auto 16px;max-width:18ch;color:#fff;
+    background:linear-gradient(180deg,#ffffff 0%,#c9d2dd 130%);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;}
+  .hero p.lead{font-size:18px;color:#d4dae2;max-width:52ch;margin:0 auto 30px;}
+  .hero .btns{display:flex;gap:13px;flex-wrap:wrap;justify-content:center;}
+  .hero .note{margin-top:18px;font-size:13px;color:#a9b2bf;}
+  @media (max-width:680px){.hero h1{font-size:34px;}}
+
+  /* Buttons */
+  .btn{display:inline-block;border-radius:9px;font-weight:600;font-size:15px;padding:14px 24px;transition:background .12s,border-color .12s,transform .06s;}
+  .btn:active{transform:translateY(1px);}
+  .btn-light{background:#fff;color:var(--ink);}
+  .btn-light:hover{background:#eef0f3;}
+  .btn-outline-light{background:rgba(255,255,255,.06);color:#fff;border:1px solid rgba(255,255,255,.5);}
+  .btn-outline-light:hover{border-color:#fff;background:rgba(255,255,255,.12);}
+  .btn-dark{background:var(--ink);color:#fff;}
+  .btn-dark:hover{background:#000;}
+  .btn-outline-dark{background:#fff;color:var(--ink);border:1px solid var(--line-2);}
+  .btn-outline-dark:hover{border-color:var(--ink-2);}
+
+  /* Sections */
+  section{padding:60px 0;}
+  .sec-head{text-align:center;max-width:62ch;margin:0 auto 36px;}
+  .sec-head .k{font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--faint);font-weight:700;}
+  .sec-head h2{font-size:31px;margin:10px 0 10px;}
+  .sec-head p{color:var(--muted);font-size:16px;margin:0;}
+
+  .subhead{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--faint);font-weight:700;margin:8px 0 16px;display:flex;align-items:center;gap:12px;}
+  .subhead::after{content:"";flex:1;height:1px;background:var(--line);}
+
+  .docs{display:grid;grid-template-columns:1fr 1fr;gap:18px;}
+  @media (max-width:820px){.docs{grid-template-columns:1fr;}}
+  .doc{border:1px solid var(--line);border-radius:12px;padding:24px;background:#fff;transition:box-shadow .15s,transform .15s,border-color .15s;display:flex;flex-direction:column;}
+  .doc:hover{box-shadow:0 14px 34px rgba(20,24,31,.08);transform:translateY(-2px);border-color:var(--line-2);}
+  .doc .ic{width:42px;height:42px;border-radius:10px;background:var(--bg-soft);border:1px solid var(--line);display:flex;align-items:center;justify-content:center;margin-bottom:16px;color:var(--accent);}
+  .doc h3{margin:0 0 7px;font-size:19px;}
+  .doc p{margin:0 0 18px;font-size:14px;color:var(--muted);flex:1;}
+  .doc a.go{font-weight:600;font-size:14px;color:var(--ink);border-bottom:1px solid var(--line-2);padding-bottom:2px;align-self:flex-start;}
+  .doc a.go:hover{border-color:var(--ink);}
+
+  /* Coming soon grid */
+  .soon-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:8px;}
+  @media (max-width:820px){.soon-grid{grid-template-columns:1fr 1fr;}}
+  @media (max-width:520px){.soon-grid{grid-template-columns:1fr;}}
+  .mini{border:1px dashed var(--line-2);border-radius:11px;padding:16px 16px;background:var(--bg-soft);}
+  .mini .top{display:flex;align-items:center;gap:10px;margin-bottom:6px;}
+  .mini .mic{width:32px;height:32px;border-radius:8px;background:#fff;border:1px solid var(--line);display:flex;align-items:center;justify-content:center;color:var(--accent);flex:0 0 auto;}
+  .mini h4{font-family:var(--serif);font-size:15px;margin:0;font-weight:600;}
+  .mini .tag{font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--faint);font-weight:700;}
+  .mini p{margin:0;font-size:12.5px;color:var(--muted);line-height:1.5;}
+
+  /* Pricing */
+  .pricing{background:var(--bg-soft);border-top:1px solid var(--line);border-bottom:1px solid var(--line);}
+  .plans{display:grid;grid-template-columns:repeat(2,1fr);gap:20px;max-width:760px;margin:0 auto;}
+  @media (max-width:680px){.plans{grid-template-columns:1fr;}}
+  .plan{background:#fff;border:1px solid var(--line);border-radius:14px;padding:30px;position:relative;}
+  .plan.feat{border-color:var(--ink);box-shadow:0 16px 40px rgba(20,24,31,.10);}
+  .plan .badge{position:absolute;top:-12px;left:30px;background:var(--ink);color:#fff;font-size:10.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:5px 12px;border-radius:999px;}
+  .plan h3{margin:0;font-size:19px;}
+  .plan .price{font-family:var(--serif);font-size:42px;font-weight:600;letter-spacing:-.02em;margin:12px 0 2px;}
+  .plan .price span{font-size:15px;font-weight:500;color:var(--muted);}
+  .plan ul{list-style:none;padding:0;margin:18px 0 24px;}
+  .plan li{font-size:14px;color:var(--ink-2);padding:8px 0 8px 26px;position:relative;}
+  .plan li::before{content:"";position:absolute;left:2px;top:13px;width:11px;height:6px;border-left:2px solid var(--accent);border-bottom:2px solid var(--accent);transform:rotate(-45deg);}
+  .plan .choose{display:block;text-align:center;}
+
+  /* Trust */
+  .trust{display:grid;grid-template-columns:repeat(3,1fr);gap:26px;}
+  @media (max-width:820px){.trust{grid-template-columns:1fr;}}
+  .t-item{padding-top:18px;border-top:2px solid var(--ink);}
+  .t-item h4{font-family:var(--serif);margin:0 0 7px;font-size:17px;font-weight:600;}
+  .t-item p{margin:0;font-size:14px;color:var(--muted);}
+
+  /* Legal (dark) */
+  .legal{background:var(--dark);color:#c4ccd6;}
+  .legal .box{max-width:760px;margin:0 auto;text-align:center;}
+  .legal h2{color:#fff;font-size:24px;margin:0 0 12px;}
+  .legal p{font-size:13.5px;line-height:1.7;color:#9aa4b1;margin:0;}
+
+  footer{background:#0d1116;color:#8590a0;font-size:13px;}
+  footer .in{max-width:1080px;margin:0 auto;padding:28px 24px;display:flex;justify-content:space-between;gap:18px;flex-wrap:wrap;align-items:center;}
+  footer .fbrand{display:flex;align-items:center;gap:9px;color:#e7ebf0;font-family:var(--serif);font-weight:700;}
+  footer .fbrand .logo{width:22px;height:22px;color:#e7ebf0;}
+  footer a{color:#aab3c1;margin-left:18px;}
+  footer a:hover{color:#fff;}
+</style>
+</head>
+<body>
+
+<!-- Logo : édifice à colonnes (style institutionnel) -->
+<svg width="0" height="0" style="position:absolute"><symbol id="brandlogo" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round"><path d="M12 2.5 L21.5 7.5 H2.5 Z"/><line x1="3" y1="10" x2="21" y2="10"/><line x1="5.5" y1="10" x2="5.5" y2="18"/><line x1="9.5" y1="10" x2="9.5" y2="18"/><line x1="14.5" y1="10" x2="14.5" y2="18"/><line x1="18.5" y1="10" x2="18.5" y2="18"/><line x1="3" y1="18" x2="21" y2="18"/><line x1="2" y1="21" x2="22" y2="21"/></symbol></svg>
+
+<nav><div class="in">
+  <a class="brand" href="index.html"><svg class="logo"><use href="#brandlogo"/></svg> PaieDoc</a>
+  <div class="links">
+    <a href="fiche-de-paie.html">Fiche de paie</a>
+    <a href="contrat-de-travail.html">Contrat de travail</a>
+    <a href="#tarifs">Tarifs</a>
+  </div>
+</div></nav>
+
+<header class="hero">
+  <div class="container">
+    <span class="eyebrow">Pour employeurs &amp; TPE</span>
+    <h1>Vos documents RH, impeccables et conformes.</h1>
+    <p class="lead">Fiches de paie et contrats de travail prêts en quelques minutes — cotisations et prélèvement à la source calculés automatiquement. Sans logiciel, sans abonnement.</p>
+    <div class="btns">
+      <a class="btn btn-light" href="fiche-de-paie.html">Créer une fiche de paie</a>
+      <a class="btn btn-outline-light" href="contrat-de-travail.html">Créer un contrat de travail</a>
+    </div>
+    <div class="note">Aperçu gratuit · paiement uniquement pour télécharger le PDF final.</div>
+  </div>
+</header>
+
+<section id="documents"><div class="container">
+  <div class="sec-head"><div class="k">Catalogue</div><h2>Tous vos documents d'employeur au même endroit</h2><p>Vous remplissez un formulaire simple, l'outil s'occupe des calculs et de la mise en page conforme.</p></div>
+
+  <div class="subhead">Disponibles maintenant</div>
+  <div class="docs">
+    <div class="doc">
+      <div class="ic"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M6 2h8l4 4v16H6z"/><path d="M14 2v4h4"/><path d="M9 13h6M9 17h6"/></svg></div>
+      <h3>Fiche de paie</h3>
+      <p>Cotisations salariales et patronales, tranches, prélèvement à la source automatique, congés, montant net social. Mise en page personnalisable, sur une seule page.</p>
+      <a class="go" href="fiche-de-paie.html">Créer une fiche →</a>
+    </div>
+    <div class="doc">
+      <div class="ic"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="5" y="3" width="14" height="18" rx="1"/><path d="M8 8h8M8 12h8M8 16h5"/></svg></div>
+      <h3>Contrat de travail</h3>
+      <p>CDI ou CDD, clauses essentielles et optionnelles (confidentialité, non-concurrence, télétravail…), articles numérotés automatiquement.</p>
+      <a class="go" href="contrat-de-travail.html">Créer un contrat →</a>
+    </div>
+  </div>
+
+  <div class="subhead" style="margin-top:34px">Bientôt disponibles</div>
+  <div class="soon-grid">
+    <div class="mini"><div class="top"><div class="mic"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M5 3h11l3 3v15H5z"/><path d="M9 12h6M9 16h6"/></svg></div><span class="tag">Bientôt</span></div><h4>Attestation d'employeur</h4><p>Justificatif d'emploi pour un salarié.</p></div>
+    <div class="mini"><div class="top"><div class="mic"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="9" r="4"/><path d="M5 20a7 7 0 0 1 14 0"/></svg></div><span class="tag">Bientôt</span></div><h4>Certificat de travail</h4><p>Remis au salarié en fin de contrat.</p></div>
+    <div class="mini"><div class="top"><div class="mic"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 5h16v14H4z"/><path d="M8 9h8M8 13h5"/></svg></div><span class="tag">Bientôt</span></div><h4>Reçu pour solde de tout compte</h4><p>Détail des sommes versées au départ.</p></div>
+    <div class="mini"><div class="top"><div class="mic"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 3v18M7 7h7a3 3 0 0 1 0 6H9a3 3 0 0 0 0 6h8"/></svg></div><span class="tag">Bientôt</span></div><h4>Attestation de salaire</h4><p>Pour les indemnités (maladie, etc.).</p></div>
+    <div class="mini"><div class="top"><div class="mic"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M5 3h14v18H5z"/><path d="M9 8h6M9 12h6M9 16h4"/></svg></div><span class="tag">Bientôt</span></div><h4>Avenant au contrat</h4><p>Modification d'un contrat existant.</p></div>
+    <div class="mini"><div class="top"><div class="mic"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 4h16v12H4z"/><path d="M4 8h16"/><path d="M9 20h6"/></svg></div><span class="tag">Bientôt</span></div><h4>Promesse d'embauche</h4><p>Engagement écrit avant l'embauche.</p></div>
+  </div>
+</div></section>
+
+<section id="tarifs" class="pricing"><div class="container">
+  <div class="sec-head"><div class="k">Tarifs</div><h2>Vous payez seulement ce dont vous avez besoin</h2><p>Pas d'abonnement. Le paiement se fait à l'unité, au moment de télécharger.</p></div>
+  <div class="plans">
+    <div class="plan">
+      <h3>À l'unité</h3>
+      <div class="price">10 €<span> / fiche</span></div>
+      <ul>
+        <li>1 fiche de paie complète</li>
+        <li>Calculs &amp; prélèvement à la source automatiques</li>
+        <li>Téléchargement PDF sans filigrane</li>
+        <li>Aperçu gratuit avant paiement</li>
+      </ul>
+      <a class="btn btn-outline-dark choose" href="fiche-de-paie.html">Créer une fiche</a>
+    </div>
+    <div class="plan feat">
+      <span class="badge">Le plus avantageux</span>
+      <h3>Pack employeur</h3>
+      <div class="price">50 €<span> / pack</span></div>
+      <ul>
+        <li>3 fiches de paie</li>
+        <li>1 contrat de travail (CDI ou CDD)</li>
+        <li>Téléchargements PDF sans filigrane</li>
+        <li>Crédits utilisables quand vous voulez</li>
+      </ul>
+      <a class="btn btn-dark choose" href="fiche-de-paie.html">Choisir le pack</a>
+    </div>
+  </div>
+</div></section>
+
+<section><div class="container">
+  <div class="sec-head"><div class="k">Pourquoi PaieDoc</div><h2>Simple, à jour, et respectueux de vos données</h2></div>
+  <div class="trust">
+    <div class="t-item"><h4>Calculs automatiques</h4><p>Cotisations, tranches et prélèvement à la source selon le barème en vigueur. Vous saisissez le salaire, le reste se calcule.</p></div>
+    <div class="t-item"><h4>Vos données restent chez vous</h4><p>Les documents sont générés dans votre navigateur. Nous ne conservons pas le contenu de vos fiches.</p></div>
+    <div class="t-item"><h4>Mise en page professionnelle</h4><p>Des documents nets, prêts à imprimer ou à envoyer, au format A4, sur une seule page.</p></div>
+  </div>
+</div></section>
+
+<section class="legal"><div class="container"><div class="box">
+  <h2>Un service destiné aux employeurs</h2>
+  <p>PaieDoc s'adresse aux employeurs et à leurs mandataires pour produire des documents authentiques. Avant chaque achat, l'utilisateur certifie sur l'honneur un usage légitime. Toute production de document falsifié est strictement interdite et engage la seule responsabilité de l'utilisateur. Les documents générés sont fournis à titre indicatif et doivent être vérifiés au regard de votre convention collective et de la réglementation en vigueur ; ils ne se substituent pas à un expert-comptable ou à un conseil juridique.</p>
+</div></div></section>
+
+<footer><div class="in">
+  <div class="fbrand"><svg class="logo"><use href="#brandlogo"/></svg> PaieDoc</div>
+  <div>© <span id="yr"></span> [VOTRE LLC] — Tous droits réservés.</div>
+  <div>
+    <a href="mentions-legales.html">Mentions légales</a>
+    <a href="cgv.html">CGV</a>
+    <a href="confidentialite.html">Confidentialité</a>
+  </div>
+</div></footer>
+
+<script>document.getElementById("yr").textContent=new Date().getFullYear();</script>
+</body>
+</html>
