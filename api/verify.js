@@ -13,7 +13,8 @@ module.exports = async (req, res) => {
 
     res.status(200).json({
       paid: paid,
-      product: session.metadata && session.metadata.product
+      product: session.metadata && session.metadata.product,
+      qty: session.metadata && session.metadata.qty
     });
   } catch (e) {
     res.status(500).json({ error: e.message });
