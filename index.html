@@ -32,17 +32,24 @@
   nav .links a:hover{background:var(--bg-soft);color:var(--ink);}
 
   /* Hero with photo background */
-  .hero{position:relative;color:#fff;padding:96px 0 104px;text-align:center;
+  .hero{position:relative;color:#fff;padding:40px 0 46px;text-align:center;
     background:linear-gradient(rgba(14,18,25,.55),rgba(14,18,25,.8)), url('hero.jpg') center/cover no-repeat, #14181f;}
   .hero .container{animation:heroIn .7s cubic-bezier(.2,.7,.2,1) both;}
   @keyframes heroIn{from{opacity:0;transform:translateY(16px);}to{opacity:1;transform:none;}}
   .hero .eyebrow{display:inline-block;font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:#cdd5df;border:1px solid rgba(255,255,255,.28);padding:6px 13px;border-radius:999px;}
-  .hero h1{font-size:50px;font-weight:600;line-height:1.07;letter-spacing:-.028em;margin:22px auto 16px;max-width:18ch;color:#fff;
+  .hero h1{font-size:40px;font-weight:600;line-height:1.08;letter-spacing:-.028em;margin:14px auto 10px;max-width:20ch;color:#fff;
     background:linear-gradient(180deg,#ffffff 0%,#c9d2dd 130%);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;}
-  .hero p.lead{font-size:18px;color:#d4dae2;max-width:52ch;margin:0 auto 30px;}
+  .hero p.lead{font-size:16px;color:#d4dae2;max-width:54ch;margin:0 auto 6px;}
   .hero .btns{display:flex;gap:13px;flex-wrap:wrap;justify-content:center;}
-  .hero .note{margin-top:18px;font-size:13px;color:#a9b2bf;}
-  @media (max-width:680px){.hero h1{font-size:34px;}}
+  .hero .note{margin-top:14px;font-size:13px;color:#a9b2bf;}
+  .hero .plans{margin-top:20px;margin-bottom:4px;}
+  .hero .plan{text-align:left;color:var(--ink);padding:22px;}
+  .hero .plan h3{color:var(--navy);}
+  .hero .plan .price{color:var(--ink);margin:6px 0 2px;font-size:34px;}
+  .hero .plan ul{margin:12px 0 16px;}
+  .hero .plan li{padding:5px 0 5px 26px;}
+  .badge-offer{background:#0f7a55 !important;}
+  @media (max-width:680px){.hero h1{font-size:30px;}}
 
   /* Buttons */
   .btn{display:inline-block;border-radius:9px;font-weight:600;font-size:15px;padding:14px 24px;transition:background .12s,border-color .12s,transform .06s;}
@@ -91,7 +98,8 @@
   .pricing{background:var(--bg-soft);border-top:1px solid var(--line);border-bottom:1px solid var(--line);}
   .plans{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;max-width:1040px;margin:0 auto;}
   @media (max-width:880px){.plans{grid-template-columns:1fr;max-width:460px;}}
-  .plan{background:#fff;border:1px solid var(--line);border-radius:14px;padding:30px;position:relative;}
+  .plan{background:#fff;border:1px solid var(--line);border-radius:14px;padding:30px;position:relative;display:flex;flex-direction:column;}
+  .plan .choose{margin-top:auto;}
   .plan.feat{border-color:var(--ink);box-shadow:0 16px 40px rgba(20,24,31,.10);}
   .plan .badge{position:absolute;top:-12px;left:30px;background:var(--ink);color:#fff;font-size:10.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:5px 12px;border-radius:999px;}
   .plan h3{margin:0;font-size:19px;}
@@ -142,10 +150,42 @@
     <span class="eyebrow">Pour employeurs &amp; TPE</span>
     <h1>Vos documents RH, impeccables et conformes.</h1>
     <p class="lead">Fiches de paie et contrats de travail prêts en quelques minutes — cotisations et prélèvement à la source calculés automatiquement. Sans logiciel, sans abonnement.</p>
-    <div class="btns">
-      <a class="btn btn-light" href="fiche-de-paie.html">Créer une fiche de paie</a>
-      <a class="btn btn-outline-light" href="contrat-de-travail.html">Créer un contrat de travail</a>
+
+    <div class="plans" id="tarifs">
+      <div class="plan">
+        <span class="badge badge-offer">Offre dès 5 fiches</span>
+        <h3>Fiches de paie</h3>
+        <div class="price">10 €<span> / fiche</span></div>
+        <ul>
+          <li><b>Dès 5 fiches : 8 € l'unité</b> — soit 5 fiches pour 40 €</li>
+          <li>1 ou plusieurs mois en série</li>
+          <li>Calculs &amp; prélèvement à la source automatiques</li>
+        </ul>
+        <a class="btn btn-dark choose" href="fiche-de-paie.html">Créer des fiches</a>
+      </div>
+      <div class="plan">
+        <h3>Contrat de travail</h3>
+        <div class="price">30 €<span> / contrat</span></div>
+        <ul>
+          <li>CDI ou CDD, clauses légales</li>
+          <li>Remplissage automatique par SIRET</li>
+          <li>Aperçu gratuit avant paiement</li>
+        </ul>
+        <a class="btn btn-dark choose" href="contrat-de-travail.html">Créer un contrat</a>
+      </div>
+      <div class="plan feat">
+        <span class="badge">Économie de 10 €</span>
+        <h3>Pack employeur</h3>
+        <div class="price">50 €<span> / pack</span></div>
+        <ul>
+          <li>1 contrat de travail + 3 fiches de paie</li>
+          <li><b>50 € au lieu de 60 €</b> séparément</li>
+          <li>Tout au même endroit, étape par étape</li>
+        </ul>
+        <a class="btn btn-dark choose" href="pack.html">Choisir le pack</a>
+      </div>
     </div>
+
     <div class="note">Aperçu gratuit · paiement uniquement pour télécharger le PDF final.</div>
   </div>
 </header>
@@ -177,46 +217,6 @@
     <div class="mini"><div class="top"><div class="mic"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 3v18M7 7h7a3 3 0 0 1 0 6H9a3 3 0 0 0 0 6h8"/></svg></div><span class="tag">Bientôt</span></div><h4>Attestation de salaire</h4><p>Pour les indemnités (maladie, etc.).</p></div>
     <div class="mini"><div class="top"><div class="mic"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M5 3h14v18H5z"/><path d="M9 8h6M9 12h6M9 16h4"/></svg></div><span class="tag">Bientôt</span></div><h4>Avenant au contrat</h4><p>Modification d'un contrat existant.</p></div>
     <div class="mini"><div class="top"><div class="mic"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 4h16v12H4z"/><path d="M4 8h16"/><path d="M9 20h6"/></svg></div><span class="tag">Bientôt</span></div><h4>Promesse d'embauche</h4><p>Engagement écrit avant l'embauche.</p></div>
-  </div>
-</div></section>
-
-<section id="tarifs" class="pricing"><div class="container">
-  <div class="sec-head"><div class="k">Tarifs</div><h2>Vous payez seulement ce dont vous avez besoin</h2><p>Pas d'abonnement. Le paiement se fait à l'unité, au moment de télécharger.</p></div>
-  <div class="plans">
-    <div class="plan">
-      <h3>Fiches de paie</h3>
-      <div class="price">10 €<span> / fiche</span></div>
-      <ul>
-        <li>1 ou plusieurs fiches en série</li>
-        <li><b>8 € / fiche dès 5 fiches</b> (dégressif)</li>
-        <li>Calculs &amp; prélèvement à la source automatiques</li>
-        <li>Aperçu gratuit avant paiement</li>
-      </ul>
-      <a class="btn btn-outline-dark choose" href="fiche-de-paie.html">Créer des fiches</a>
-    </div>
-    <div class="plan">
-      <h3>Contrat de travail</h3>
-      <div class="price">30 €<span> / contrat</span></div>
-      <ul>
-        <li>1 contrat CDI ou CDD</li>
-        <li>Clauses essentielles &amp; mentions légales</li>
-        <li>Remplissage automatique par SIRET</li>
-        <li>Aperçu gratuit avant paiement</li>
-      </ul>
-      <a class="btn btn-outline-dark choose" href="contrat-de-travail.html">Créer un contrat</a>
-    </div>
-    <div class="plan feat">
-      <span class="badge">Le plus avantageux</span>
-      <h3>Pack employeur</h3>
-      <div class="price">50 €<span> / pack</span></div>
-      <ul>
-        <li>1 contrat de travail (CDI ou CDD)</li>
-        <li>+ 3 fiches de paie</li>
-        <li>Tout sur une seule page, étape par étape</li>
-        <li>Crédits utilisables quand vous voulez</li>
-      </ul>
-      <a class="btn btn-dark choose" href="pack.html">Choisir le pack</a>
-    </div>
   </div>
 </div></section>
 
