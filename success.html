@@ -36,6 +36,7 @@
   var q = new URLSearchParams(location.search);
   var sid = q.get("session_id");
   var product = q.get("product");
+  var qty = parseInt(q.get("qty"), 10) || 1;
   var title=document.getElementById("title"), msg=document.getElementById("msg"),
       ic=document.getElementById("ic"), btns=document.getElementById("btns"),
       creditsBox=document.getElementById("credits");
@@ -44,9 +45,9 @@
     var r = await fetch("/api/verify?session_id=" + encodeURIComponent(sid));
     var d = await r.json();
     if(d && d.paid){
-      Paywall.addProduct(product || d.product);
+      Paywall.addProduct(product || d.product, qty || (d.qty ? parseInt(d.qty,10) : 1));
       title.textContent = "Paiement confirmé 🎉";
-      msg.textContent = "Vos crédits ont été ajoutés. Vous pouvez maintenant télécharger vos documents sans filigrane sur ce navigateur.";
+      msg.textContent = "Vos crédits ont été ajoutés. Vous pouvez maintenant télécharger vos documents (version nette et complète) sur ce navigateur.";
       var f = Paywall.credits("fiche"), c = Paywall.credits("contrat");
       creditsBox.textContent = "Crédits disponibles : " + f + " fiche(s) de paie" + (c>0 ? " · " + c + " contrat(s)" : "");
       creditsBox.style.display = "block";

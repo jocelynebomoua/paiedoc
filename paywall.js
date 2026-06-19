@@ -17,10 +17,11 @@
   function read(){ try{ return JSON.parse(localStorage.getItem(KEY)) || {}; }catch(e){ return {}; } }
   function write(c){ try{ localStorage.setItem(KEY, JSON.stringify(c)); }catch(e){} }
   function credits(type){ return read()[type] || 0; }
-  function addProduct(p){
+  function addProduct(p, qty){
     var def = PRODUCTS[p]; if(!def) return;
+    var n = (qty && qty>1) ? qty : 1;
     var c = read();
-    for(var k in def.grants){ c[k] = (c[k]||0) + def.grants[k]; }
+    for(var k in def.grants){ c[k] = (c[k]||0) + def.grants[k] * (p==="fiche" ? n : 1); }
     write(c);
   }
   function consume(type){
@@ -29,11 +30,11 @@
     return false;
   }
 
-  async function checkout(product){
+  async function checkout(product, qty){
     try{
       var r = await fetch("/api/create-checkout", {
         method:"POST", headers:{ "Content-Type":"application/json" },
-        body: JSON.stringify({ product: product })
+        body: JSON.stringify({ product: product, qty: (qty&&qty>1)?qty:1 })
       });
       var d = await r.json();
       if(d && d.url){ window.location.href = d.url; }
@@ -68,7 +69,12 @@
   + ".pp-att input{margin-top:2px;flex:0 0 auto;}"
   + ".pp-buy{width:100%;border:0;border-radius:9px;background:#2563c9;color:#fff;font-weight:600;font-size:14px;padding:12px;cursor:pointer;}"
   + ".pp-buy:disabled{opacity:.45;cursor:not-allowed;}"
-  + ".pp-x{background:none;border:0;color:#94a1b2;font-size:13px;cursor:pointer;margin-top:10px;width:100%;}";
+  + ".pp-x{background:none;border:0;color:#94a1b2;font-size:13px;cursor:pointer;margin-top:10px;width:100%;}"
+  + ".pp-modal *{box-sizing:border-box;}"
+  + ".pp-card .pp-att{display:flex;gap:9px;align-items:flex-start;text-align:left;width:auto;max-width:none;position:static;float:none;}"
+  + ".pp-card .pp-att input[type=checkbox]{width:16px;height:16px;min-width:16px;max-width:16px;flex:0 0 16px;margin:1px 0 0;padding:0;appearance:auto;-webkit-appearance:checkbox;}"
+  + ".pp-card .pp-att span{flex:1 1 auto;display:block;}"
+  + ".pp-note{font-weight:600;color:#0f7a55;font-size:12px;}";
   var st = document.createElement("style"); st.textContent = css; document.head.appendChild(st);
 
   /* ---------- protection de l'aperçu : floutage ---------- */
@@ -108,41 +114,54 @@
   }
 
   /* ---------- fenêtre d'achat ---------- */
-  var modalEl = null, picked = "fiche";
+  var modalEl = null, picked = "fiche", pickedQty = 1;
+  function ficheUnit(q){ return q>=5 ? 8 : 10; }
+  function ficheTotal(q){ return q*ficheUnit(q); }
+  function paintModal(){
+    if(!modalEl) return;
+    var opts = modalEl.querySelectorAll(".pp-opt");
+    for(var i=0;i<opts.length;i++){ opts[i].style.borderColor = (opts[i].getAttribute("data-p")===picked ? "#2563c9" : "#cdd6e3"); }
+  }
+  function renderOptions(qty){
+    var q = (qty && qty>1) ? qty : 1;
+    var box = modalEl.querySelector("#pp-opts"); if(!box) return;
+    var fLabel = q>1 ? (q + " fiches de paie") : "1 fiche de paie";
+    var fNote  = q>=5 ? " <span class='pp-note'>(8 \u20ac / fiche)</span>" : "";
+    box.innerHTML =
+        "<div class='pp-opt' data-p='fiche'><span class='l'>" + fLabel + fNote + "</span><span class='pr'>" + ficheTotal(q) + " \u20ac</span></div>"
+      + "<div class='pp-opt' data-p='contrat'><span class='l'>1 contrat de travail</span><span class='pr'>30 \u20ac</span></div>"
+      + "<div class='pp-opt' data-p='bundle'><span class='l'>Pack 3 fiches + 1 contrat</span><span class='pr'>50 \u20ac</span></div>";
+    var opts = box.querySelectorAll(".pp-opt");
+    for(var i=0;i<opts.length;i++){ (function(o){ o.onclick=function(){ picked=o.getAttribute("data-p"); paintModal(); }; })(opts[i]); }
+    paintModal();
+  }
   function buildModal(){
     modalEl = document.createElement("div"); modalEl.className = "pp-modal";
     modalEl.innerHTML =
       "<div class='pp-card'>"
       + "<h3>D\u00e9bloquer le t\u00e9l\u00e9chargement</h3>"
       + "<p class='pp-sub'>Votre document est pr\u00eat. Choisissez une formule pour t\u00e9l\u00e9charger le PDF net et complet.</p>"
-      + "<div class='pp-opt' data-p='fiche'><span class='l'>1 fiche de paie</span><span class='pr'>10 \u20ac</span></div>"
-      + "<div class='pp-opt' data-p='contrat'><span class='l'>1 contrat de travail</span><span class='pr'>30 \u20ac</span></div>"
-      + "<div class='pp-opt' data-p='bundle'><span class='l'>Pack 3 fiches + 1 contrat</span><span class='pr'>50 \u20ac</span></div>"
-      + "<label class='pp-att'><input type='checkbox' id='pp-att-chk'> Je certifie sur l'honneur \u00eatre employeur ou d\u00fbment mandat\u00e9, et utiliser ce service uniquement pour produire des documents authentiques, \u00e0 des fins l\u00e9gitimes.</label>"
+      + "<div id='pp-opts'></div>"
+      + "<label class='pp-att'><input type='checkbox' id='pp-att-chk'><span>Je certifie sur l'honneur \u00eatre employeur ou d\u00fbment mandat\u00e9, et utiliser ce service uniquement pour produire des documents authentiques, \u00e0 des fins l\u00e9gitimes.</span></label>"
       + "<button class='pp-buy' id='pp-buy' disabled>Continuer vers le paiement</button>"
       + "<button class='pp-x' id='pp-x'>Annuler</button>"
       + "</div>";
     document.body.appendChild(modalEl);
     var chk = modalEl.querySelector("#pp-att-chk");
     var buy = modalEl.querySelector("#pp-buy");
-    function paint(){
-      var opts = modalEl.querySelectorAll(".pp-opt");
-      for(var i=0;i<opts.length;i++){ opts[i].style.borderColor = (opts[i].getAttribute("data-p")===picked ? "#2563c9" : "#cdd6e3"); }
-    }
-    var opts = modalEl.querySelectorAll(".pp-opt");
-    for(var i=0;i<opts.length;i++){ (function(o){ o.onclick=function(){ picked=o.getAttribute("data-p"); paint(); }; })(opts[i]); }
     chk.onchange = function(){ buy.disabled = !chk.checked; };
-    buy.onclick = function(){ if(chk.checked){ checkout(picked); } };
+    buy.onclick = function(){ if(chk.checked){ checkout(picked, picked==="fiche"?pickedQty:1); } };
     modalEl.querySelector("#pp-x").onclick = function(){ modalEl.classList.remove("open"); };
     modalEl.onclick = function(e){ if(e.target===modalEl){ modalEl.classList.remove("open"); } };
-    paint();
   }
-  function openBuy(preselect){
+  function openBuy(preselect, qty){
     if(!modalEl) buildModal();
-    if(preselect && PRODUCTS[preselect]){ picked = preselect; }
+    pickedQty = (qty && qty>1) ? qty : 1;
+    picked = (preselect && PRODUCTS[preselect]) ? preselect : "fiche";
+    renderOptions(pickedQty);
+    var chk = modalEl.querySelector("#pp-att-chk"); if(chk) chk.checked = false;
+    var buy = modalEl.querySelector("#pp-buy"); if(buy) buy.disabled = true;
     modalEl.classList.add("open");
-    var opts = modalEl.querySelectorAll(".pp-opt");
-    for(var i=0;i<opts.length;i++){ opts[i].style.borderColor = (opts[i].getAttribute("data-p")===picked ? "#2563c9" : "#cdd6e3"); }
   }
 
   window.Paywall = {

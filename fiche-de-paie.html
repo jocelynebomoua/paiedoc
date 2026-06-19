@@ -787,11 +787,11 @@ async function tryDownload(){
   if(!window.Paywall){ exportPdf(); return; }            // mode démo (paywall non chargé)
   const need=serieCount();
   if(Paywall.credits('fiche')>=need){ for(let i=0;i<need;i++)Paywall.consume('fiche'); WM.hide(); await exportPdf(); refreshWM(); }
-  else { Paywall.openBuy('fiche'); }
+  else { Paywall.openBuy('fiche', need); }
 }
 $('btnPdf').onclick=tryDownload;
 $('btnPdf2').onclick=tryDownload;
-$('btnPrint').onclick=()=>{ if(window.Paywall && Paywall.credits('fiche')<serieCount()){ Paywall.openBuy('fiche'); return; } window.print(); };
+$('btnPrint').onclick=()=>{ if(window.Paywall && Paywall.credits('fiche')<serieCount()){ Paywall.openBuy('fiche', serieCount()); return; } window.print(); };
 $('btnReset').onclick=()=>{if(confirm('Réinitialiser tous les champs ?'))location.reload();};
 
 // --- Personnalisation : logo & couleurs ---

@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pack employeur — Contrat + 3 fiches de paie · PaieDoc</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="paywall.js"></script>
+<style>
+  :root{--navy:#0e2342;--ink:#16202e;--muted:#5d6b7e;--accent:#2563c9;--line:#d4dbe3;--bg:#e1e6ec;--panel:#fff;}
+  *{box-sizing:border-box;}
+  body{margin:0;font-family:'Inter',ui-sans-serif,-apple-system,'Segoe UI',Roboto,sans-serif;background:var(--bg);color:var(--ink);}
+  a{color:inherit;}
+  .top{background:linear-gradient(180deg,#0e1722,#0e2342);color:#fff;padding:18px 22px;display:flex;align-items:center;gap:14px;}
+  .top .logo{width:38px;height:38px;border-radius:9px;background:#1b2f4d;display:flex;align-items:center;justify-content:center;color:#cfe0ff;font-family:'Sora';font-weight:800;}
+  .top h1{font-family:'Sora';font-size:18px;margin:0;font-weight:700;}
+  .top .home{margin-left:auto;font-size:13px;color:#aebfd6;text-decoration:none;}
+  .wrap{max-width:1080px;margin:0 auto;padding:26px 18px 60px;}
+  .intro{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:24px;margin-bottom:24px;}
+  .intro h2{font-family:'Sora';font-size:22px;margin:0 0 8px;color:var(--navy);}
+  .intro p{font-size:14.5px;color:var(--muted);line-height:1.6;margin:0 0 14px;}
+  .price-pill{display:inline-block;background:#e9f0fb;border:1px solid #cadcf5;color:var(--navy);font-weight:700;border-radius:999px;padding:6px 14px;font-size:14px;margin-right:10px;}
+  .buy{border:0;border-radius:10px;background:var(--accent);color:#fff;font-weight:600;font-size:14.5px;padding:13px 22px;cursor:pointer;margin-top:6px;}
+  .buy:hover{background:#1d54b0;}
+  .steps{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px;}
+  .step-chip{font-size:13px;color:var(--navy);background:#f1f5fb;border:1px solid #dbe6f5;border-radius:8px;padding:8px 12px;}
+  .stage{background:var(--panel);border:1px solid var(--line);border-radius:14px;overflow:hidden;margin-bottom:26px;}
+  .stage-head{display:flex;align-items:center;gap:12px;padding:16px 20px;border-bottom:1px solid var(--line);background:#f7f9fc;}
+  .stage-head .num{width:30px;height:30px;border-radius:50%;background:var(--navy);color:#fff;font-family:'Sora';font-weight:700;display:flex;align-items:center;justify-content:center;font-size:15px;}
+  .stage-head h3{font-family:'Sora';font-size:17px;margin:0;color:var(--navy);}
+  .stage-head .ext{margin-left:auto;font-size:13px;color:var(--accent);text-decoration:none;font-weight:600;}
+  .frame{width:100%;height:88vh;border:0;display:block;background:#eef1f6;}
+  .tip{font-size:13px;color:var(--muted);padding:10px 20px;background:#fbfcfe;border-top:1px solid var(--line);}
+  @media (max-width:640px){ .frame{height:80vh;} }
+</style>
+</head>
+<body>
+  <div class="top">
+    <div class="logo">P</div>
+    <h1>Pack employeur</h1>
+    <a class="home" href="index.html">← Accueil</a>
+  </div>
+
+  <div class="wrap">
+    <div class="intro">
+      <h2>Contrat de travail + 3 fiches de paie</h2>
+      <p>Créez tout au même endroit : votre <b>contrat de travail</b> juste en dessous, puis vos <b>fiches de paie</b> plus bas. L'aperçu est gratuit ; vous payez <b>une seule fois</b> au moment de télécharger. Le pack crédite <b>1 contrat + 3 fiches</b> de paie, utilisables quand vous voulez sur ce navigateur.</p>
+      <div>
+        <span class="price-pill">Pack 50 €</span>
+        <span class="price-pill" style="background:#eef2f7;border-color:#dde4ec">au lieu de 60 €</span>
+      </div>
+      <div class="steps">
+        <span class="step-chip">Étape 1 · Contrat de travail</span>
+        <span class="step-chip">Étape 2 · Vos 3 fiches de paie</span>
+        <span class="step-chip">Étape 3 · Paiement unique au téléchargement</span>
+      </div>
+      <div style="margin-top:16px">
+        <button class="buy" id="buyPack">Acheter le pack maintenant — 50 €</button>
+      </div>
+    </div>
+
+    <div class="stage">
+      <div class="stage-head"><div class="num">1</div><h3>Votre contrat de travail</h3>
+        <a class="ext" href="contrat-de-travail.html" target="_blank" rel="noopener">Ouvrir en plein écran ↗</a></div>
+      <iframe class="frame" src="contrat-de-travail.html" title="Générateur de contrat de travail"></iframe>
+      <div class="tip">Astuce : ce cadre défile tout seul. Remplissez le contrat, puis descendez plus bas pour créer vos fiches de paie.</div>
+    </div>
+
+    <div class="stage">
+      <div class="stage-head"><div class="num">2</div><h3>Vos fiches de paie</h3>
+        <a class="ext" href="fiche-de-paie.html" target="_blank" rel="noopener">Ouvrir en plein écran ↗</a></div>
+      <iframe class="frame" src="fiche-de-paie.html" title="Générateur de fiches de paie"></iframe>
+      <div class="tip">Dans la section « Plusieurs mois (série) », indiquez 3 bulletins et choisissez les mois souhaités. Le pack couvre 3 fiches.</div>
+    </div>
+  </div>
+
+<script>
+  document.getElementById('buyPack').onclick=function(){
+    if(window.Paywall && Paywall.openBuy){ Paywall.openBuy('bundle'); }
+    else { alert("Le paiement sera disponible une fois le site en ligne avec votre clé Stripe."); }
+  };
+</script>
+</body>
+</html>
