@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mentions légales · PaieDoc</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{--navy:#0e2342;--ink:#16202e;--muted:#5d6b7e;--accent:#2563c9;--line:#d4dbe3;--bg:#eef1f6;}
+  *{box-sizing:border-box}body{margin:0;font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--ink);line-height:1.6}
+  .top{background:linear-gradient(rgba(14,18,25,.62),rgba(14,18,25,.82)),url('hero.jpg') center/cover no-repeat,#0e2342;color:#fff;padding:16px 22px;display:flex;align-items:center;gap:12px}
+  .top .brand{display:inline-flex;align-items:center;gap:9px;color:#fff;text-decoration:none;font-family:'Sora',sans-serif;font-weight:800;font-size:18px}
+  .top .brand svg{width:26px;height:26px;color:#cfe0ff}
+  .top .home{margin-left:auto;color:#cdd5df;text-decoration:none;font-size:13px}
+  .wrap{max-width:820px;margin:0 auto;padding:34px 20px 60px}
+  h1{font-family:'Sora',sans-serif;color:var(--navy);font-size:28px;margin:0 0 6px}
+  .upd{color:var(--muted);font-size:13px;margin-bottom:22px}
+  h2{font-family:'Sora',sans-serif;color:var(--navy);font-size:18px;margin:24px 0 8px}
+  p,li{font-size:14.5px;color:#2b3947}
+  .box{background:#fff;border:1px solid var(--line);border-radius:12px;padding:22px 26px}
+  .todo{background:#fff8ea;border:1px solid #f0d79c;color:#795a16;border-radius:8px;padding:11px 14px;font-size:13px;margin:16px 0}
+  a{color:var(--accent)}
+  footer{text-align:center;color:var(--muted);font-size:12.5px;padding:24px}
+</style>
+</head>
+<body>
+  <svg width="0" height="0" style="position:absolute"><symbol id="brandlogo" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round"><path d="M12 2.5 L21.5 7.5 H2.5 Z"/><line x1="3" y1="10" x2="21" y2="10"/><line x1="5.5" y1="10" x2="5.5" y2="18"/><line x1="9.5" y1="10" x2="9.5" y2="18"/><line x1="14.5" y1="10" x2="14.5" y2="18"/><line x1="18.5" y1="10" x2="18.5" y2="18"/><line x1="3" y1="18" x2="21" y2="18"/><line x1="2" y1="21" x2="22" y2="21"/></symbol></svg>
+  <div class="top">
+    <a class="brand" href="index.html"><svg><use href="#brandlogo"/></svg> PaieDoc</a>
+    <a class="home" href="index.html">← Accueil</a>
+  </div>
+  <div class="wrap">
+    <h1>Mentions légales</h1>
+    <div class="upd">Dernière mise à jour : <span id="d"></span></div>
+
+    <div class="box">
+      <div class="todo">Il reste à renseigner votre <b>adresse postale complète</b> (seul champ marqué [à compléter] ci-dessous).</div>
+
+      <h2>Éditeur du site</h2>
+      <p>Le site <b>PaieDoc</b> est édité par <b>EBCONSULTING</b>, société de droit américain (Limited Liability Company).</p>
+      <p>
+        Siège social : [à compléter — adresse complète]<br>
+        Numéro d'immatriculation : [à compléter — n° d'enregistrement / État d'immatriculation]<br>
+        Adresse e-mail de contact : ebconsultingllc2026@outlook.com<br>
+        Responsable de la publication : EBCONSULTING
+      </p>
+
+      <h2>Hébergement</h2>
+      <p>Le site est hébergé par <b>Vercel Inc.</b>, 340 S Lemon Ave #4133, Walnut, CA 91789, États-Unis — <a href="https://vercel.com" target="_blank" rel="noopener">vercel.com</a>.</p>
+
+      <h2>Objet du service</h2>
+      <p>PaieDoc est un outil d'aide à la création de documents administratifs liés à l'emploi (fiches de paie, contrats de travail) destiné aux employeurs et à leurs mandataires. Les documents sont générés à titre indicatif et doivent être vérifiés au regard de la convention collective applicable et de la réglementation en vigueur. Le service ne constitue pas un conseil comptable ou juridique et ne se substitue pas à un expert-comptable ou à un avocat.</p>
+
+      <h2>Propriété intellectuelle</h2>
+      <p>La structure du site, ses textes, son interface et ses modèles de documents sont la propriété d'EBCONSULTING. Les documents que vous générez à partir de vos propres données vous appartiennent.</p>
+
+      <h2>Responsabilité</h2>
+      <p>L'utilisateur est seul responsable des données qu'il saisit et de l'usage qu'il fait des documents produits. Toute production de document falsifié ou destiné à tromper un tiers est strictement interdite et engage la seule responsabilité de l'utilisateur.</p>
+
+      <h2>Contact</h2>
+      <p>Pour toute question : ebconsultingllc2026@outlook.com.</p>
+    </div>
+  </div>
+  <footer>© <span id="y"></span> EBCONSULTING — PaieDoc</footer>
+  <script>
+    document.getElementById('y').textContent=new Date().getFullYear();
+    document.getElementById('d').textContent=new Date().toLocaleDateString('fr-FR');
+  </script>
+</body>
+</html>

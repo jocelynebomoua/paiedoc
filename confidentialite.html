@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Politique de confidentialité · PaieDoc</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{--navy:#0e2342;--ink:#16202e;--muted:#5d6b7e;--accent:#2563c9;--line:#d4dbe3;--bg:#eef1f6;}
+  *{box-sizing:border-box}body{margin:0;font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--ink);line-height:1.6}
+  .top{background:linear-gradient(rgba(14,18,25,.62),rgba(14,18,25,.82)),url('hero.jpg') center/cover no-repeat,#0e2342;color:#fff;padding:16px 22px;display:flex;align-items:center;gap:12px}
+  .top .brand{display:inline-flex;align-items:center;gap:9px;color:#fff;text-decoration:none;font-family:'Sora',sans-serif;font-weight:800;font-size:18px}
+  .top .brand svg{width:26px;height:26px;color:#cfe0ff}
+  .top .home{margin-left:auto;color:#cdd5df;text-decoration:none;font-size:13px}
+  .wrap{max-width:820px;margin:0 auto;padding:34px 20px 60px}
+  h1{font-family:'Sora',sans-serif;color:var(--navy);font-size:28px;margin:0 0 6px}
+  .upd{color:var(--muted);font-size:13px;margin-bottom:22px}
+  h2{font-family:'Sora',sans-serif;color:var(--navy);font-size:18px;margin:24px 0 8px}
+  p,li{font-size:14.5px;color:#2b3947}
+  .box{background:#fff;border:1px solid var(--line);border-radius:12px;padding:22px 26px}
+  .todo{background:#fff8ea;border:1px solid #f0d79c;color:#795a16;border-radius:8px;padding:11px 14px;font-size:13px;margin:16px 0}
+  a{color:var(--accent)}
+  footer{text-align:center;color:var(--muted);font-size:12.5px;padding:24px}
+</style>
+</head>
+<body>
+  <svg width="0" height="0" style="position:absolute"><symbol id="brandlogo" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round"><path d="M12 2.5 L21.5 7.5 H2.5 Z"/><line x1="3" y1="10" x2="21" y2="10"/><line x1="5.5" y1="10" x2="5.5" y2="18"/><line x1="9.5" y1="10" x2="9.5" y2="18"/><line x1="14.5" y1="10" x2="14.5" y2="18"/><line x1="18.5" y1="10" x2="18.5" y2="18"/><line x1="3" y1="18" x2="21" y2="18"/><line x1="2" y1="21" x2="22" y2="21"/></symbol></svg>
+  <div class="top">
+    <a class="brand" href="index.html"><svg><use href="#brandlogo"/></svg> PaieDoc</a>
+    <a class="home" href="index.html">← Accueil</a>
+  </div>
+  <div class="wrap">
+    <h1>Politique de confidentialité</h1>
+    <div class="upd">Dernière mise à jour : <span id="d"></span></div>
+
+    <div class="box">
+      <h2>Responsable du traitement</h2>
+      <p><b>EBCONSULTING</b>, éditeur du site PaieDoc.</p>
+
+      <h2>Le contenu de vos documents reste chez vous</h2>
+      <p>Les données que vous saisissez pour générer un document (nom du salarié, salaire, etc.) sont traitées <b>directement dans votre navigateur</b> : le document est produit côté client. <b>Nous ne stockons pas le contenu de vos fiches de paie ou contrats sur nos serveurs.</b> Ces données et vos crédits sont conservés localement dans la mémoire de votre navigateur (stockage local) et peuvent être effacés à tout moment depuis les réglages de votre navigateur.</p>
+
+      <h2>Données liées au paiement</h2>
+      <p>Les paiements sont gérés par <b>Stripe</b>, prestataire certifié. Lors d'un achat, Stripe traite les informations nécessaires à la transaction (carte bancaire, e-mail de facturation). Nous n'avons jamais accès au numéro complet de votre carte. Pour en savoir plus, consultez la politique de confidentialité de Stripe.</p>
+
+      <h2>Recherche d'entreprise (SIRET)</h2>
+      <p>La fonction de remplissage automatique interroge l'API publique « Recherche d'entreprises » de l'administration française à partir du numéro SIRET/SIREN que vous saisissez, afin de pré-remplir les informations de l'employeur.</p>
+
+      <h2>Cookies &amp; mesure d'audience</h2>
+      <p>Le site n'utilise pas de cookies publicitaires. Seul le stockage local technique, nécessaire au fonctionnement du service (crédits, préférences), est utilisé.</p>
+
+      <h2>Vos droits</h2>
+      <p>Conformément au RGPD, vous disposez d'un droit d'accès, de rectification et d'effacement de vos données. La majorité de vos données étant stockées localement, vous pouvez les supprimer vous-même en effaçant les données de navigation. Pour toute demande : ebconsultingllc2026@outlook.com.</p>
+    </div>
+  </div>
+  <footer>© <span id="y"></span> EBCONSULTING — PaieDoc</footer>
+  <script>
+    document.getElementById('y').textContent=new Date().getFullYear();
+    document.getElementById('d').textContent=new Date().toLocaleDateString('fr-FR');
+  </script>
+</body>
+</html>
