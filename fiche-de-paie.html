@@ -328,11 +328,13 @@
         <section class="card">
           <header><div class="ic">3</div><div><h2>Période &amp; rémunération</h2><div class="desc">Mois payé et salaire brut</div></div></header>
           <div class="body">
-            <div class="row">
-              <div class="field"><label>Période (mois)</label><input id="per_mois" type="month" value="2026-06"></div>
+            <div class="row three">
+              <div class="field"><label>1ᵉʳ mois payé</label><input id="per_mois" type="month" value="2026-06"></div>
               <div class="field"><label>Date de paiement</label><input id="per_paie" type="date" value="2026-06-30"></div>
+              <div class="field"><label>Nombre de bulletins</label><input id="serie_n" type="number" min="1" max="24" step="1" value="1"></div>
             </div>
-            <div class="row one" style="margin-top:12px"><div class="field full"><label>Salaire de base brut mensuel (€)</label><input id="rem_base" type="number" step="0.01" value="3000"></div></div>
+            <div class="row one" style="margin-top:12px"><div class="field full"><label>Salaire de base brut mensuel — 1ᵉʳ mois (€)</label><input id="rem_base" type="number" step="0.01" value="3000"></div></div>
+            <div id="serie_rows" style="margin-top:12px;display:none"></div>
             <details class="more"><summary>Heures, mode horaire &amp; éléments variables</summary><div class="inner">
               <div class="row">
                 <div class="field"><label>Mode de calcul</label><select id="rem_mode"><option value="mensuel" selected>Salaire mensuel fixe</option><option value="horaire">Taux horaire × heures</option></select></div>
@@ -401,18 +403,6 @@
               </div>
               <div class="row one" style="margin-top:12px"><div class="field full"><label>Heures cumulées antérieures</label><input id="cum_heures" type="number" step="0.01" value="0"></div></div>
             </div></details>
-          </div>
-        </section>
-
-        <!-- Série (plusieurs mois) -->
-        <section class="card">
-          <header><div class="ic">📅</div><div><h2>Plusieurs mois (série)</h2><div class="desc">Générer plusieurs bulletins d'un coup</div></div></header>
-          <div class="body">
-            <div class="row one"><div class="field full"><label>Nombre de bulletins (mois consécutifs)</label>
-              <input id="serie_n" type="number" min="1" max="24" step="1" value="1">
-            </div></div>
-            <div class="notice" style="margin-top:10px">Le 1<sup>er</sup> mois est celui de la section « Période &amp; rémunération » ; les suivants s'enchaînent automatiquement. Les taux, heures et primes sont communs à la série ; seul le <b>Brut</b> de chaque mois est ajustable ci-dessous. Les cumuls s'additionnent de mois en mois. <b>Chaque bulletin = 1 crédit.</b></div>
-            <div id="serie_rows" style="margin-top:12px;display:none"></div>
           </div>
         </section>
 
@@ -834,8 +824,9 @@ function buildSerieRows(){
   const n=serieCount();
   if(n<=1){ box.style.display='none'; box.innerHTML=''; return; }
   box.style.display='block';
-  let html='<div class="subhead">Choisissez le mois, l\'année et le brut de chaque bulletin</div>';
-  for(let i=0;i<n;i++){
+  let html='<div class="notice" style="margin-bottom:10px">'+n+' bulletins seront générés. Le <b>1<sup>er</sup></b> correspond au mois et au brut saisis ci-dessus ; indiquez ci-dessous le mois, l\'année et le brut des suivants. La date d\'entrée (carte « Salarié ») sert au calcul des congés et des cumuls, qui s\'additionnent de mois en mois. <b>Chaque bulletin = 1 crédit.</b></div>';
+  html+='<div class="subhead">Mois suivants</div>';
+  for(let i=1;i<n;i++){
     html+='<div class="row" style="margin-top:8px">'
       +'<div class="field"><label>Bulletin n°'+(i+1)+' — mois &amp; année</label><input class="serie-mois" data-i="'+i+'" type="month" value="'+serieMoisFor(i)+'"></div>'
       +'<div class="field"><label>Brut (€)</label><input class="serie-brut" data-i="'+i+'" type="number" step="0.01" value="'+serieBrutFor(i)+'"></div>'
@@ -851,6 +842,7 @@ function buildSerieRows(){
 }
 $('serie_n').addEventListener('input',()=>{ buildSerieRows(); render(); });
 $('per_mois').addEventListener('input', buildSerieRows);
+$('rem_base').addEventListener('input', buildSerieRows);
 buildSerieRows();
 
 render();
