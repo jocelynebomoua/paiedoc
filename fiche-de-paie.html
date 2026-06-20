@@ -193,6 +193,24 @@
   .cum-grid b{font-variant-numeric:tabular-nums;color:#13202f;}
 
   /* ---- Personnalisation : logo, polices, modèles ---- */
+  /* compactage : tenir sur une seule page A4 */
+  .bhead{padding:13px 22px;}
+  .bbody{padding:14px 22px 15px;}
+  .parties{gap:14px;margin-bottom:4px;}
+  .pbox .mt{font-size:11px;line-height:1.4;}
+  table.cot{margin-top:10px;}
+  table.cot th{padding:6px 6px;}
+  table.cot td{padding:3px 6px;font-size:11px;}
+  table.cot tr.grp td{padding:4px 6px;}
+  .pas-block{margin-top:9px;}
+  .results{margin-top:9px;gap:9px;}
+  .rc{padding:8px 12px;}
+  .extra-grid{margin-top:9px;gap:10px;}
+  .cp-block .h,.cum-block .h{padding:6px 13px;}
+  .cp-block td,.cp-block th{padding:3px 13px;}
+  .cum-grid{padding:4px 13px 5px;}
+  .cum-grid>div{padding:2px 0;}
+  .bfoot{margin-top:9px;padding-top:8px;}
   .bulletin .logo-img{max-height:50px;max-width:190px;width:auto;object-fit:contain;display:block;border-radius:6px;background:#fff;padding:2px;}
   .bulletin.font-serif .bbody{font-family:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,"Times New Roman",serif;}
 
@@ -647,7 +665,7 @@ function render(){
     if(c.hs25>0)gain+=`<tr><td>Heures supplémentaires 25 %</td><td></td><td></td><td>${eur(c.hs25)}</td><td></td><td></td></tr>`;
     if(c.hs50>0)gain+=`<tr><td>Heures supplémentaires 50 %</td><td></td><td></td><td>${eur(c.hs50)}</td><td></td><td></td></tr>`;
     if(c.prime>0)gain+=`<tr><td>${val('rem_prime_lib')||'Prime'}</td><td></td><td></td><td>${eur(c.prime)}</td><td></td><td></td></tr>`;
-    gain+=`<tr class="brut"><td>Salaire brut</td><td></td><td></td><td>${eur(c.brut)}</td><td class="muted">Coût employeur</td><td>${eur(c.coutTotal)}</td></tr>`;
+    gain+=`<tr class="brut"><td>Salaire brut</td><td></td><td></td><td>${eur(c.brut)}</td><td></td><td></td></tr>`;
 
     let rows='',cur='';
     c.lines.forEach(x=>{
@@ -688,7 +706,6 @@ function render(){
         <div class="rc"><div class="k">Net à payer avant impôt</div><div class="v">${eur(c.netAvantImpot)}</div></div>
         <div class="rc"><div class="k">Net imposable</div><div class="v">${eur(c.netImposable)}</div></div>
         <div class="rc mns"><div class="k">Montant net social</div><div class="v">${eur(c.mns)}</div></div>
-        <div class="rc cost"><div class="k">Coût total employeur</div><div class="v">${eur(c.coutTotal)}</div></div>
       </div>
       ${pasBlock}
       <div class="results"><div class="rc net"><div class="k">Net payé au salarié (après impôt)</div><div class="v">${eur(c.netAPayer)}</div></div></div>
@@ -767,7 +784,27 @@ async function exportPdf(){
     const wasTabbed=el.classList.contains('tabbed');
     el.classList.remove('tabbed');                       // afficher toutes les fiches pour la capture
     const restore=()=>{ if(wasTabbed) el.classList.add('tabbed'); };
+    // 1 fiche = 1 page A4, ajustée pour tenir entièrement (pas de découpe).
+    if(typeof html2canvas!=='undefined' && window.jspdf && window.jspdf.jsPDF){
+      try{
+        const sheets=el.querySelectorAll('.bulletin[data-si]');
+        const {jsPDF}=window.jspdf;
+        const pdf=new jsPDF({unit:'mm',format:'a4',orientation:'portrait'});
+        const pageW=pdf.internal.pageSize.getWidth(), pageH=pdf.internal.pageSize.getHeight();
+        const m=6, availW=pageW-2*m, availH=pageH-2*m;
+        for(let i=0;i<sheets.length;i++){
+          const canvas=await html2canvas(sheets[i],{scale:2,backgroundColor:'#ffffff',useCORS:true});
+          const ratio=canvas.width/canvas.height;
+          let w=availW, h=w/ratio;
+          if(h>availH){ h=availH; w=h*ratio; }
+          if(i>0) pdf.addPage();
+          pdf.addImage(canvas.toDataURL('image/jpeg',0.98),'JPEG',(pageW-w)/2,m,w,h);
+        }
+        pdf.save(filename); restore(); return;
+      }catch(e){ restore(); /* repli ci-dessous */ }
+    }
     if(typeof html2pdf!=='undefined'){
+      el.classList.remove('tabbed');
       return html2pdf().set({margin:[6,6,6,6],filename,image:{type:'jpeg',quality:.98},
         html2canvas:{scale:2,useCORS:true,backgroundColor:'#ffffff'},jsPDF:{unit:'mm',format:'a4',orientation:'portrait'},
         pagebreak:{mode:['css','legacy']}}).from(el).save().then(restore, restore);
