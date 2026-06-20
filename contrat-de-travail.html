@@ -4,6 +4,9 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Générateur de contrat de travail</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.2/html2pdf.bundle.min.js"></script>
 <script src="paywall.js"></script>
 <style>
@@ -12,17 +15,22 @@
     --ink:#16202e;--muted:#5d6b7e;--faint:#94a1b2;--line:#e3e8f0;--line-2:#cdd6e3;
     --canvas:#eef1f6;--panel:#fff;--paper:#fff;--ok:#0f7a55;
     --warn-bg:#fff8ea;--warn-line:#f0d79c;--warn-ink:#795a16;--r:12px;
-    --sans:ui-sans-serif,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    --sans:'Inter',ui-sans-serif,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    --display:'Sora','Inter',ui-sans-serif,sans-serif;
     --serif:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,"Times New Roman",serif;
   }
   *{box-sizing:border-box;}html,body{margin:0;padding:0;}
   body{font-family:var(--sans);color:var(--ink);background:var(--canvas);line-height:1.45;-webkit-font-smoothing:antialiased;}
-  .topbar{background:var(--navy);color:#fff;}
+  .topbar{background:linear-gradient(rgba(14,18,25,.62),rgba(14,18,25,.82)), url('hero.jpg') center/cover no-repeat, var(--navy);color:#fff;}
   .topbar .in{max-width:1340px;margin:0 auto;padding:16px 24px;display:flex;align-items:center;gap:14px;}
+  .topbar .brand{display:inline-flex;align-items:center;gap:9px;color:#fff;text-decoration:none;font-family:var(--display);font-weight:800;font-size:18px;letter-spacing:-.01em;}
+  .topbar .brand svg{width:26px;height:26px;color:#cfe0ff;}
+  .topbar .titleblock{border-left:1px solid rgba(255,255,255,.20);padding-left:14px;}
   .logo-mark{width:34px;height:34px;border-radius:8px;background:linear-gradient(135deg,var(--accent),#5b8be0);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:15px;}
-  .topbar h1{font-size:16px;font-weight:650;margin:0;letter-spacing:-.01em;}
-  .topbar .eyebrow{font-family:ui-monospace,Menlo,monospace;font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:#9fb6d6;display:block;margin-bottom:1px;}
-  .topbar .right{margin-left:auto;font-size:12px;color:#a9bcd6;}
+  .topbar h1{font-family:var(--display);font-size:16px;font-weight:700;margin:0;letter-spacing:-.01em;}
+  .topbar .eyebrow{font-family:ui-monospace,Menlo,monospace;font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:#cdd5df;display:block;margin-bottom:1px;}
+  .topbar .right{margin-left:auto;font-size:12px;color:#cdd5df;}
+  .card h2{font-family:var(--display);font-weight:700;}
   .wrap{max-width:1340px;margin:0 auto;padding:24px;}
   .notice{background:var(--warn-bg);border:1px solid var(--warn-line);color:var(--warn-ink);border-radius:var(--r);padding:11px 15px;font-size:12.5px;margin-bottom:20px;}
   .notice b{font-weight:650;}
@@ -136,9 +144,11 @@
 </head>
 <body>
 
+<svg width="0" height="0" style="position:absolute"><symbol id="brandlogo" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round"><path d="M12 2.5 L21.5 7.5 H2.5 Z"/><line x1="3" y1="10" x2="21" y2="10"/><line x1="5.5" y1="10" x2="5.5" y2="18"/><line x1="9.5" y1="10" x2="9.5" y2="18"/><line x1="14.5" y1="10" x2="14.5" y2="18"/><line x1="18.5" y1="10" x2="18.5" y2="18"/><line x1="3" y1="18" x2="21" y2="18"/><line x1="2" y1="21" x2="22" y2="21"/></symbol></svg>
+
 <div class="topbar"><div class="in">
-  <div class="logo-mark">C</div>
-  <div><span class="eyebrow">France · Droit du travail</span><h1>Générateur de contrat de travail</h1></div>
+  <a class="brand" href="index.html"><svg><use href="#brandlogo"/></svg> PaieDoc</a>
+  <div class="titleblock"><span class="eyebrow">France · Droit du travail</span><h1>Générateur de contrat de travail</h1></div>
   <div class="right">CDI &amp; CDD · clauses personnalisables · export PDF</div>
 </div></div>
 
