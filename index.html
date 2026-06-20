@@ -169,6 +169,13 @@
   .spec-side h3{font-family:'Sora',sans-serif;color:var(--navy);font-size:20px;margin:0 0 12px;}
   .spec-side ul{margin:0 0 18px;padding-left:18px;color:var(--ink);font-size:14.5px;}
   .spec-side li{margin:6px 0;}
+  .faq-list{max-width:760px;margin:0 auto;display:flex;flex-direction:column;gap:10px;}
+  .faq-list details{background:#fff;border:1px solid var(--line);border-radius:12px;overflow:hidden;}
+  .faq-list summary{cursor:pointer;list-style:none;padding:16px 20px;font-weight:600;font-size:15px;color:var(--ink);display:flex;justify-content:space-between;align-items:center;gap:12px;font-family:'Sora',sans-serif;}
+  .faq-list summary::-webkit-details-marker{display:none;}
+  .faq-list summary::after{content:"+";font-size:21px;color:var(--accent);font-weight:400;flex:0 0 auto;line-height:1;}
+  .faq-list details[open] summary::after{content:"–";}
+  .faq-list .a{padding:0 20px 16px;color:var(--muted);font-size:14.5px;line-height:1.6;}
   footer{background:#0d1116;color:#8590a0;font-size:13px;}
   footer .in{max-width:1080px;margin:0 auto;padding:28px 24px;display:flex;justify-content:space-between;gap:18px;flex-wrap:wrap;align-items:center;}
   footer .fbrand{display:flex;align-items:center;gap:9px;color:#e7ebf0;font-family:var(--serif);font-weight:700;}
@@ -325,6 +332,18 @@
     <div class="t-item"><h4>Calculs automatiques</h4><p>Cotisations, tranches et prélèvement à la source selon le barème en vigueur. Vous saisissez le salaire, le reste se calcule.</p></div>
     <div class="t-item"><h4>Vos données restent chez vous</h4><p>Les documents sont générés dans votre navigateur. Nous ne conservons pas le contenu de vos fiches.</p></div>
     <div class="t-item"><h4>Mise en page professionnelle</h4><p>Des documents nets, prêts à imprimer ou à envoyer, au format A4, sur une seule page.</p></div>
+  </div>
+</div></section>
+
+<section><div class="container">
+  <div class="sec-head"><div class="k">Questions fréquentes</div><h2>Tout savoir avant de commencer</h2></div>
+  <div class="faq-list">
+    <details><summary>Ai-je besoin de créer un compte ?</summary><div class="a">Non. Vous remplissez le formulaire, vous payez, vous téléchargez. Aucune inscription, aucun mot de passe.</div></details>
+    <details><summary>Puis-je voir le document avant de payer ?</summary><div class="a">Oui. L'aperçu est gratuit : vous vérifiez l'identité, la société et le salaire. Seul le détail des cotisations reste masqué jusqu'au paiement.</div></details>
+    <details><summary>Puis-je personnaliser la mise en page ?</summary><div class="a">Oui : 6 modèles au choix, la couleur principale, la police (classique ou moderne) et l'ajout de votre logo d'entreprise.</div></details>
+    <details><summary>Les documents sont-ils conformes ?</summary><div class="a">Ils sont pré-remplis selon le régime général 2026. Les montants dépendent de votre convention collective, de votre effectif et du taux AT/MP : vérifiez-les avant remise. L'outil ne remplace pas un expert-comptable.</div></details>
+    <details><summary>Comment je récupère mon document ?</summary><div class="a">Par téléchargement immédiat au format PDF, sur téléphone ou ordinateur. Pensez à le télécharger dès le paiement : c'est votre version définitive.</div></details>
+    <details><summary>Et en cas de problème de paiement ?</summary><div class="a">Le paiement est sécurisé par Stripe. En cas de souci technique avéré après paiement, contactez-nous par e-mail pour un remboursement.</div></details>
   </div>
 </div></section>
 
