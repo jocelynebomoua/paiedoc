@@ -114,7 +114,20 @@
   .bulletin{background:var(--paper);color:#13202f;max-width:840px;margin:0 auto;border:1px solid var(--line);border-radius:8px;overflow:hidden;}
   .bulletin-series{background:transparent;border:0;border-radius:0;overflow:visible;}
   .bulletin-series .bulletin{margin:0 auto 26px;}
+  .bulletin-series.tabbed > .bulletin{display:none;}
+  .bulletin-series.tabbed > .bulletin.active{display:block;margin-bottom:0;}
   .html2pdf__page-break{height:0;line-height:0;}
+  .serie-tabs{display:flex;flex-wrap:wrap;gap:7px;margin:0 0 12px;}
+  .serie-tabs button{font-family:var(--sans);font-size:12.5px;font-weight:600;color:var(--muted);background:#fff;border:1px solid var(--line-2);border-radius:999px;padding:7px 13px;cursor:pointer;transition:all .12s;}
+  .serie-tabs button:hover{border-color:var(--accent);color:var(--accent);}
+  .serie-tabs button.active{background:var(--navy);border-color:var(--navy);color:#fff;}
+  .pp-paid{position:fixed;inset:0;z-index:9999;background:rgba(14,22,34,.55);display:flex;align-items:center;justify-content:center;padding:20px;}
+  .pp-paid-card{background:#fff;border-radius:16px;max-width:440px;width:100%;padding:30px 28px;text-align:center;box-shadow:0 24px 70px rgba(10,20,35,.35);}
+  .pp-paid-t{font-family:var(--display);font-size:21px;font-weight:700;color:var(--navy);}
+  .pp-paid-s{font-size:14px;color:var(--muted);margin:8px 0 20px;line-height:1.5;}
+  .pp-paid-btn{width:100%;border:0;border-radius:10px;background:var(--accent);color:#fff;font-weight:600;font-size:15px;padding:14px;cursor:pointer;}
+  .pp-paid-btn:hover{background:#1d54b0;}
+  .pp-paid-x{display:block;width:100%;background:none;border:0;color:var(--faint);font-size:13px;cursor:pointer;margin-top:10px;}
   .bhead{background:var(--navy);color:#fff;display:flex;justify-content:space-between;gap:20px;align-items:center;padding:20px 26px;}
   .bhead .co{display:flex;align-items:center;gap:13px;min-width:0;}
   .bhead .mono{width:42px;height:42px;border-radius:9px;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.18);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:16px;flex:0 0 auto;}
@@ -491,6 +504,7 @@
     <!-- ============ PREVIEW ============ -->
     <div class="preview-col">
       <div class="over"><span>Aperçu en direct — format A4</span><button class="pdfbtn" id="btnPdf2">⬇ Exporter en PDF</button></div>
+      <div id="serie_tabs" class="serie-tabs" style="display:none"></div>
       <div class="paper-shadow"><div class="bulletin" id="bulletin"></div></div>
     </div>
   </div>
@@ -723,18 +737,22 @@ function render(){
       setField('per_mois',ym); setField('per_paie',endOfMonth(ym));
       setField('cum_brut',prior.brut); setField('cum_imp',prior.imp); setField('cum_net',prior.net); setField('cum_pas',prior.pas); setField('cum_heures',prior.heures);
       const cm=compute();
-      sheets.push(`<div class="bulletin tpl-${tpl} font-${font}" style="--navy:${color};--navy-2:${shadeColor(color,-16)}">${buildBulletinInner(cm)}</div>`);
+      sheets.push(`<div class="bulletin tpl-${tpl} font-${font}" data-si="${i}" style="--navy:${color};--navy-2:${shadeColor(color,-16)}">${buildBulletinInner(cm)}</div>`);
       prior={brut:cm.cum.brut,imp:cm.cum.imposable,net:cm.cum.net,pas:cm.cum.pas,heures:cm.cum.heures};
     }
     setField('rem_mode',orig.mode); setField('rem_base',orig.base); setField('per_mois',orig.mois); setField('per_paie',orig.paie);
     setField('cum_brut',orig.cb); setField('cum_imp',orig.ci); setField('cum_net',orig.cn); setField('cum_pas',orig.cp); setField('cum_heures',orig.ch);
-    bEl.removeAttribute('style'); bEl.className='bulletin-series';
+    bEl.removeAttribute('style'); bEl.className='bulletin-series tabbed';
     bEl.innerHTML=sheets.join('<div class="html2pdf__page-break"></div>');
+    if(serieActive>=N || serieActive<0) serieActive=0;
+    buildSerieTabs(months);
+    setActiveSheet(serieActive);
   } else {
     bEl.className='bulletin tpl-'+tpl+' font-'+font;
     bEl.style.setProperty('--navy', color);
     bEl.style.setProperty('--navy-2', shadeColor(color,-16));
     bEl.innerHTML=buildBulletinInner(c);
+    var stb=$('serie_tabs'); if(stb){ stb.style.display='none'; stb.innerHTML=''; }
   }
   if(typeof refreshWM==='function') refreshWM();
 }
@@ -746,11 +764,14 @@ async function exportPdf(){
   const series=el.classList.contains('bulletin-series');
   const filename= series ? `bulletins_${who}_serie.pdf` : `bulletin_${who}_${per}.pdf`;
   if(series){
+    const wasTabbed=el.classList.contains('tabbed');
+    el.classList.remove('tabbed');                       // afficher toutes les fiches pour la capture
+    const restore=()=>{ if(wasTabbed) el.classList.add('tabbed'); };
     if(typeof html2pdf!=='undefined'){
       return html2pdf().set({margin:[6,6,6,6],filename,image:{type:'jpeg',quality:.98},
         html2canvas:{scale:2,useCORS:true,backgroundColor:'#ffffff'},jsPDF:{unit:'mm',format:'a4',orientation:'portrait'},
-        pagebreak:{mode:['css','legacy']}}).from(el).save();
-    } else { alert("Module PDF indisponible. J'ouvre l'impression."); window.print(); return; }
+        pagebreak:{mode:['css','legacy']}}).from(el).save().then(restore, restore);
+    } else { restore(); alert("Module PDF indisponible. J'ouvre l'impression."); window.print(); return; }
   }
   // Export "1 page A4" : on capture le bulletin et on l'ajuste pour tenir sur une seule page.
   if(typeof html2canvas!=='undefined' && window.jspdf && window.jspdf.jsPDF){
@@ -791,7 +812,15 @@ async function tryDownload(){
 }
 $('btnPdf').onclick=tryDownload;
 $('btnPdf2').onclick=tryDownload;
-$('btnPrint').onclick=()=>{ if(window.Paywall && Paywall.credits('fiche')<serieCount()){ Paywall.openBuy('fiche', serieCount()); return; } window.print(); };
+$('btnPrint').onclick=()=>{
+  if(window.Paywall && Paywall.credits('fiche')<serieCount()){ Paywall.openBuy('fiche', serieCount()); return; }
+  var el=$('bulletin'), wasTabbed=el.classList.contains('tabbed');
+  if(wasTabbed){ el.classList.remove('tabbed');
+    var restore=function(){ el.classList.add('tabbed'); window.removeEventListener('afterprint',restore); };
+    window.addEventListener('afterprint',restore);
+  }
+  window.print();
+};
 $('btnReset').onclick=()=>{if(confirm('Réinitialiser tous les champs ?'))location.reload();};
 
 // --- Personnalisation : logo & couleurs ---
@@ -817,6 +846,31 @@ function serieCount(){ const el=$('serie_n'); if(!el) return 1; let n=parseInt(e
 function setField(id,v){ const el=$(id); if(el!=null) el.value=v; }
 const serieBrut={};                              // brut saisi par mois : index -> valeur
 const serieMois={};                              // mois/année choisi : index -> "AAAA-MM"
+var serieActive=0;                               // onglet (mois) actuellement affiché
+function buildSerieTabs(months){
+  var tb=$('serie_tabs'); if(!tb) return;
+  if(!months || months.length<=1){ tb.style.display='none'; tb.innerHTML=''; return; }
+  tb.style.display='flex';
+  var html='';
+  for(var i=0;i<months.length;i++){
+    html+='<button type="button" data-si="'+i+'"'+(i===serieActive?' class="active"':'')+'>'+moisLabel(months[i])+'</button>';
+  }
+  tb.innerHTML=html;
+  tb.querySelectorAll('button').forEach(function(b){
+    b.onclick=function(){
+      serieActive=parseInt(b.getAttribute('data-si'),10)||0;
+      setActiveSheet(serieActive);
+      tb.querySelectorAll('button').forEach(function(x){ x.classList.remove('active'); });
+      b.classList.add('active');
+    };
+  });
+}
+function setActiveSheet(i){
+  var bEl=$('bulletin'); if(!bEl) return;
+  bEl.querySelectorAll('.bulletin[data-si]').forEach(function(s){
+    s.classList.toggle('active', s.getAttribute('data-si')===String(i));
+  });
+}
 function serieBrutFor(i){ if(serieBrut[i]!=null && serieBrut[i]!=='') return serieBrut[i]; return val('rem_base'); }
 function serieMoisFor(i){ if(serieMois[i]!=null && serieMois[i]!=='') return serieMois[i]; return addMonths(val('per_mois')||defaultYM(), i); }
 function buildSerieRows(){
@@ -846,6 +900,61 @@ $('rem_base').addEventListener('input', buildSerieRows);
 buildSerieRows();
 
 render();
+
+/* ===== Sauvegarde d'état + retour de paiement ===== */
+function ppSaveState(product, qty){
+  try{
+    var data={ product:product, qty:qty, fields:{}, serieMois:serieMois, serieBrut:serieBrut, logo:(typeof LOGO!=='undefined'?LOGO:''), active:serieActive };
+    document.querySelectorAll('input[id],select[id]').forEach(function(el){
+      data.fields[el.id]=(el.type==='checkbox')?el.checked:el.value;
+    });
+    localStorage.setItem('paiedoc_state_fiche', JSON.stringify(data));
+  }catch(e){}
+}
+window.ppSaveState=ppSaveState;
+function ppRestoreState(){
+  try{
+    var raw=localStorage.getItem('paiedoc_state_fiche'); if(!raw) return false;
+    var data=JSON.parse(raw);
+    Object.keys(data.fields||{}).forEach(function(id){
+      var el=document.getElementById(id); if(!el) return;
+      if(el.type==='checkbox') el.checked=!!data.fields[id]; else el.value=data.fields[id];
+    });
+    if(data.serieMois){ for(var k in data.serieMois) serieMois[k]=data.serieMois[k]; }
+    if(data.serieBrut){ for(var k2 in data.serieBrut) serieBrut[k2]=data.serieBrut[k2]; }
+    if(typeof data.active==='number') serieActive=data.active;
+    if(data.logo){ LOGO=data.logo; }
+    buildSerieRows(); render();
+    return true;
+  }catch(e){ return false; }
+}
+function showDownloadBanner(qty){
+  var n=qty||1;
+  var bar=document.createElement('div'); bar.className='pp-paid';
+  bar.innerHTML="<div class='pp-paid-card'>"
+    +"<div class='pp-paid-t'>Paiement confirmé 🎉</div>"
+    +"<div class='pp-paid-s'>"+(n>1?("Vos "+n+" fiches de paie sont prêtes."):"Votre document est prêt.")+" Cliquez pour le télécharger (PDF net et complet"+(n>1?", "+n+" pages":"")+").</div>"
+    +"<button id='pp-dl' class='pp-paid-btn'>Télécharger mes documents</button>"
+    +"<button id='pp-dl-x' class='pp-paid-x'>Plus tard</button>"
+    +"</div>";
+  document.body.appendChild(bar);
+  document.getElementById('pp-dl').onclick=function(){ bar.remove(); tryDownload(); };
+  document.getElementById('pp-dl-x').onclick=function(){ bar.remove(); };
+}
+(function(){
+  var p=new URLSearchParams(location.search);
+  if(p.get('paid')!=='1') return;
+  var product=p.get('product')||'fiche', qty=parseInt(p.get('qty'),10)||1, sid=p.get('session_id');
+  function finish(){
+    if(window.Paywall && Paywall.addProduct) Paywall.addProduct(product, qty);
+    ppRestoreState();
+    history.replaceState({}, '', location.pathname);
+    showDownloadBanner(qty);
+  }
+  if(sid){
+    fetch('/api/verify?session_id='+encodeURIComponent(sid)).then(r=>r.json()).then(d=>{ finish(); }).catch(()=>{ finish(); });
+  } else { finish(); }
+})();
 </script>
 </body>
 </html>

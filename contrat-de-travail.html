@@ -31,6 +31,13 @@
   .topbar .eyebrow{font-family:ui-monospace,Menlo,monospace;font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:#cdd5df;display:block;margin-bottom:1px;}
   .topbar .right{margin-left:auto;font-size:12px;color:#cdd5df;}
   .card h2{font-family:var(--display);font-weight:700;}
+  .pp-paid{position:fixed;inset:0;z-index:9999;background:rgba(14,22,34,.55);display:flex;align-items:center;justify-content:center;padding:20px;}
+  .pp-paid-card{background:#fff;border-radius:16px;max-width:440px;width:100%;padding:30px 28px;text-align:center;box-shadow:0 24px 70px rgba(10,20,35,.35);}
+  .pp-paid-t{font-family:var(--display);font-size:21px;font-weight:700;color:var(--navy);}
+  .pp-paid-s{font-size:14px;color:var(--muted);margin:8px 0 20px;line-height:1.5;}
+  .pp-paid-btn{width:100%;border:0;border-radius:10px;background:var(--accent);color:#fff;font-weight:600;font-size:15px;padding:14px;cursor:pointer;}
+  .pp-paid-btn:hover{background:#1d54b0;}
+  .pp-paid-x{display:block;width:100%;background:none;border:0;color:var(--faint);font-size:13px;cursor:pointer;margin-top:10px;}
   .wrap{max-width:1340px;margin:0 auto;padding:24px;}
   .notice{background:var(--warn-bg);border:1px solid var(--warn-line);color:var(--warn-ink);border-radius:var(--r);padding:11px 15px;font-size:12.5px;margin-bottom:20px;}
   .notice b{font-weight:650;}
@@ -608,6 +615,58 @@ $('btnReset').onclick=()=>{if(confirm('Réinitialiser tous les champs ?'))locati
   inp.addEventListener('keydown',e=>{ if(e.key==='Enter'){ e.preventDefault(); search(); } });
 })();
 render();
+
+/* ===== Sauvegarde d'état + retour de paiement ===== */
+function ppSaveState(product, qty){
+  try{
+    var data={ product:product, qty:1, fields:{}, logo:(typeof LOGO!=='undefined'?LOGO:'') };
+    document.querySelectorAll('input[id],select[id],textarea[id]').forEach(function(el){
+      data.fields[el.id]=(el.type==='checkbox')?el.checked:el.value;
+    });
+    localStorage.setItem('paiedoc_state_contrat', JSON.stringify(data));
+  }catch(e){}
+}
+window.ppSaveState=ppSaveState;
+function ppRestoreState(){
+  try{
+    var raw=localStorage.getItem('paiedoc_state_contrat'); if(!raw) return false;
+    var data=JSON.parse(raw);
+    Object.keys(data.fields||{}).forEach(function(id){
+      var el=document.getElementById(id); if(!el) return;
+      if(el.type==='checkbox') el.checked=!!data.fields[id]; else el.value=data.fields[id];
+    });
+    if(data.logo){ LOGO=data.logo; }
+    render();
+    return true;
+  }catch(e){ return false; }
+}
+function showDownloadBanner(){
+  var bar=document.createElement('div'); bar.className='pp-paid';
+  bar.innerHTML="<div class='pp-paid-card'>"
+    +"<div class='pp-paid-t'>Paiement confirmé 🎉</div>"
+    +"<div class='pp-paid-s'>Votre contrat de travail est prêt. Cliquez pour le télécharger (PDF net et complet).</div>"
+    +"<button id='pp-dl' class='pp-paid-btn'>Télécharger mes documents</button>"
+    +"<button id='pp-dl-x' class='pp-paid-x'>Plus tard</button>"
+    +"</div>";
+  document.body.appendChild(bar);
+  document.getElementById('pp-dl').onclick=function(){ bar.remove(); tryDownload(); };
+  document.getElementById('pp-dl-x').onclick=function(){ bar.remove(); };
+}
+(function(){
+  var p=new URLSearchParams(location.search);
+  if(p.get('paid')!=='1') return;
+  var product=p.get('product')||'contrat', qty=parseInt(p.get('qty'),10)||1, sid=p.get('session_id');
+  function finish(){
+    if(window.Paywall && Paywall.addProduct) Paywall.addProduct(product, qty);
+    ppRestoreState();
+    history.replaceState({}, '', location.pathname);
+    showDownloadBanner();
+  }
+  if(sid){
+    fetch('/api/verify?session_id='+encodeURIComponent(sid)).then(r=>r.json()).then(d=>{ finish(); }).catch(()=>{ finish(); });
+  } else { finish(); }
+})();
 </script>
 </body>
 </html>
+

@@ -5,14 +5,14 @@
    ============================================================ */
 (function(){
   "use strict";
- 
+
   // Formules en vente (doit correspondre aux prix de /api/create-checkout.js)
   var PRODUCTS = {
     fiche:  { label:"1 fiche de paie",           price:"10 €", grants:{ fiche:1 } },
     contrat:{ label:"1 contrat de travail",      price:"30 €", grants:{ contrat:1 } },
     bundle: { label:"Pack 3 fiches + 1 contrat", price:"50 €", grants:{ fiche:3, contrat:1 } }
   };
- 
+
   var KEY = "pp_credits_v1";
   function read(){ try{ return JSON.parse(localStorage.getItem(KEY)) || {}; }catch(e){ return {}; } }
   function write(c){ try{ localStorage.setItem(KEY, JSON.stringify(c)); }catch(e){} }
@@ -29,12 +29,13 @@
     if((c[type]||0) > 0){ c[type]--; write(c); return true; }
     return false;
   }
- 
+
   async function checkout(product, qty){
     try{
+      if(typeof window.ppSaveState==="function"){ try{ window.ppSaveState(product, (qty&&qty>1)?qty:1); }catch(e){} }
       var r = await fetch("/api/create-checkout", {
         method:"POST", headers:{ "Content-Type":"application/json" },
-        body: JSON.stringify({ product: product, qty: (qty&&qty>1)?qty:1 })
+        body: JSON.stringify({ product: product, qty: (qty&&qty>1)?qty:1, from: location.pathname })
       });
       var d = await r.json();
       if(d && d.url){ window.location.href = d.url; }
@@ -43,7 +44,7 @@
       alert("Le paiement ne fonctionne qu'une fois le site mis en ligne avec votre clé Stripe (voir README).");
     }
   }
- 
+
   /* ---------- styles injectés ---------- */
   var css = ""
   + ".pp-protect{position:absolute;inset:0;z-index:6;display:none;align-items:flex-start;justify-content:center;padding:30px 16px;}"
@@ -76,7 +77,7 @@
   + ".pp-card .pp-att span{flex:1 1 auto;display:block;}"
   + ".pp-note{font-weight:600;color:#0f7a55;font-size:12px;}";
   var st = document.createElement("style"); st.textContent = css; document.head.appendChild(st);
- 
+
   /* ---------- protection de l'aperçu : floutage ---------- */
   function mountWatermark(el){
     if(!el) return { show:function(){}, hide:function(){} };
@@ -112,7 +113,7 @@
     }
     return { show:function(){ setProtected(true); }, hide:function(){ setProtected(false); } };
   }
- 
+
   /* ---------- fenêtre d'achat ---------- */
   var modalEl = null, picked = "fiche", pickedQty = 1;
   function ficheUnit(q){ return q>=5 ? 8 : 10; }
@@ -166,7 +167,7 @@
     var buy = modalEl.querySelector("#pp-buy"); if(buy) buy.disabled = true;
     modalEl.classList.add("open");
   }
- 
+
   window.Paywall = {
     PRODUCTS: PRODUCTS,
     credits: credits,
@@ -177,4 +178,3 @@
     openBuy: openBuy
   };
 })();
- 
