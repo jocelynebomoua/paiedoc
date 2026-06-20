@@ -38,6 +38,10 @@ module.exports = async (req, res) => {
     }
 
     const origin = req.headers.origin || ("https://" + req.headers.host);
+    let from = (body && typeof body.from === "string" && body.from.charAt(0) === "/") ? body.from : "/success.html";
+    if (from.indexOf("..") !== -1 || from.indexOf("//") !== -1) from = "/success.html";
+    const sep = from.indexOf("?") >= 0 ? "&" : "?";
+    const successUrl = origin + from + sep + "paid=1&session_id={CHECKOUT_SESSION_ID}&product=" + product + "&qty=" + qty;
 
     const session = await stripe.checkout.sessions.create({
       mode: "payment",
@@ -49,7 +53,7 @@ module.exports = async (req, res) => {
           product_data: { name: name }
         }
       }],
-      success_url: origin + "/success.html?session_id={CHECKOUT_SESSION_ID}&product=" + product + "&qty=" + qty,
+      success_url: successUrl,
       cancel_url: origin + "/?canceled=1",
       metadata: { product: product, qty: String(qty) }
     });
