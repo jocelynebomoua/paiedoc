@@ -5,14 +5,14 @@
    ============================================================ */
 (function(){
   "use strict";
-
+ 
   // Formules en vente (doit correspondre aux prix de /api/create-checkout.js)
   var PRODUCTS = {
     fiche:  { label:"1 fiche de paie",           price:"10 €", grants:{ fiche:1 } },
     contrat:{ label:"1 contrat de travail",      price:"30 €", grants:{ contrat:1 } },
     bundle: { label:"Pack 3 fiches + 1 contrat", price:"50 €", grants:{ fiche:3, contrat:1 } }
   };
-
+ 
   var KEY = "pp_credits_v1";
   function read(){ try{ return JSON.parse(localStorage.getItem(KEY)) || {}; }catch(e){ return {}; } }
   function write(c){ try{ localStorage.setItem(KEY, JSON.stringify(c)); }catch(e){} }
@@ -29,7 +29,7 @@
     if((c[type]||0) > 0){ c[type]--; write(c); return true; }
     return false;
   }
-
+ 
   async function checkout(product, qty){
     try{
       var r = await fetch("/api/create-checkout", {
@@ -43,7 +43,7 @@
       alert("Le paiement ne fonctionne qu'une fois le site mis en ligne avec votre clé Stripe (voir README).");
     }
   }
-
+ 
   /* ---------- styles injectés ---------- */
   var css = ""
   + ".pp-protect{position:absolute;inset:0;z-index:6;display:none;align-items:flex-start;justify-content:center;padding:30px 16px;}"
@@ -76,7 +76,7 @@
   + ".pp-card .pp-att span{flex:1 1 auto;display:block;}"
   + ".pp-note{font-weight:600;color:#0f7a55;font-size:12px;}";
   var st = document.createElement("style"); st.textContent = css; document.head.appendChild(st);
-
+ 
   /* ---------- protection de l'aperçu : floutage ---------- */
   function mountWatermark(el){
     if(!el) return { show:function(){}, hide:function(){} };
@@ -112,7 +112,7 @@
     }
     return { show:function(){ setProtected(true); }, hide:function(){ setProtected(false); } };
   }
-
+ 
   /* ---------- fenêtre d'achat ---------- */
   var modalEl = null, picked = "fiche", pickedQty = 1;
   function ficheUnit(q){ return q>=5 ? 8 : 10; }
@@ -122,17 +122,20 @@
     var opts = modalEl.querySelectorAll(".pp-opt");
     for(var i=0;i<opts.length;i++){ opts[i].style.borderColor = (opts[i].getAttribute("data-p")===picked ? "#2563c9" : "#cdd6e3"); }
   }
-  function renderOptions(qty){
-    var q = (qty && qty>1) ? qty : 1;
+  function optionRow(product, q){
+    if(product==="fiche"){
+      var n=(q&&q>1)?q:1;
+      var label=n>1?(n+" fiches de paie"):"1 fiche de paie";
+      var note=n>=5?" <span class='pp-note'>(8 \u20ac / fiche)</span>":"";
+      return "<div class='pp-opt' data-p='fiche'><span class='l'>"+label+note+"</span><span class='pr'>"+ficheTotal(n)+" \u20ac</span></div>";
+    }
+    if(product==="contrat") return "<div class='pp-opt' data-p='contrat'><span class='l'>1 contrat de travail</span><span class='pr'>30 \u20ac</span></div>";
+    if(product==="bundle")  return "<div class='pp-opt' data-p='bundle'><span class='l'>Pack 3 fiches + 1 contrat</span><span class='pr'>50 \u20ac</span></div>";
+    return "";
+  }
+  function renderOptions(){
     var box = modalEl.querySelector("#pp-opts"); if(!box) return;
-    var fLabel = q>1 ? (q + " fiches de paie") : "1 fiche de paie";
-    var fNote  = q>=5 ? " <span class='pp-note'>(8 \u20ac / fiche)</span>" : "";
-    box.innerHTML =
-        "<div class='pp-opt' data-p='fiche'><span class='l'>" + fLabel + fNote + "</span><span class='pr'>" + ficheTotal(q) + " \u20ac</span></div>"
-      + "<div class='pp-opt' data-p='contrat'><span class='l'>1 contrat de travail</span><span class='pr'>30 \u20ac</span></div>"
-      + "<div class='pp-opt' data-p='bundle'><span class='l'>Pack 3 fiches + 1 contrat</span><span class='pr'>50 \u20ac</span></div>";
-    var opts = box.querySelectorAll(".pp-opt");
-    for(var i=0;i<opts.length;i++){ (function(o){ o.onclick=function(){ picked=o.getAttribute("data-p"); paintModal(); }; })(opts[i]); }
+    box.innerHTML = optionRow(picked, pickedQty);   // une seule option : exactement ce qui a été commandé
     paintModal();
   }
   function buildModal(){
@@ -140,7 +143,7 @@
     modalEl.innerHTML =
       "<div class='pp-card'>"
       + "<h3>D\u00e9bloquer le t\u00e9l\u00e9chargement</h3>"
-      + "<p class='pp-sub'>Votre document est pr\u00eat. Choisissez une formule pour t\u00e9l\u00e9charger le PDF net et complet.</p>"
+      + "<p class='pp-sub'>Votre document est pr\u00eat. V\u00e9rifiez votre commande, puis validez le paiement pour t\u00e9l\u00e9charger le PDF net et complet.</p>"
       + "<div id='pp-opts'></div>"
       + "<label class='pp-att'><input type='checkbox' id='pp-att-chk'><span>Je certifie sur l'honneur \u00eatre employeur ou d\u00fbment mandat\u00e9, et utiliser ce service uniquement pour produire des documents authentiques, \u00e0 des fins l\u00e9gitimes.</span></label>"
       + "<button class='pp-buy' id='pp-buy' disabled>Continuer vers le paiement</button>"
@@ -158,12 +161,12 @@
     if(!modalEl) buildModal();
     pickedQty = (qty && qty>1) ? qty : 1;
     picked = (preselect && PRODUCTS[preselect]) ? preselect : "fiche";
-    renderOptions(pickedQty);
+    renderOptions();
     var chk = modalEl.querySelector("#pp-att-chk"); if(chk) chk.checked = false;
     var buy = modalEl.querySelector("#pp-buy"); if(buy) buy.disabled = true;
     modalEl.classList.add("open");
   }
-
+ 
   window.Paywall = {
     PRODUCTS: PRODUCTS,
     credits: credits,
@@ -174,3 +177,4 @@
     openBuy: openBuy
   };
 })();
+ 
