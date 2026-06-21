@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Exemple de fiche de paie · PaieDoc</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --navy:#0e2342;--navy-2:#16335c;--accent:#2563c9;--accent-soft:#e9f0fb;--accent-line:#cadcf5;
+    --ink:#16202e;--muted:#5d6b7e;--faint:#94a1b2;--line:#e3e8f0;--line-2:#cdd6e3;--canvas:#eef1f6;
+    --panel:#ffffff;--paper:#ffffff;--ok:#0f7a55;
+    --sans:'Inter',ui-sans-serif,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    --display:'Sora','Inter',ui-sans-serif,sans-serif;
+    --mono:ui-monospace,"SF Mono","Cascadia Mono",Menlo,Consolas,monospace;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;background:#eef1f6;font-family:var(--sans);padding:18px;display:flex;justify-content:center;}
+  .bulletin{background:var(--paper);color:#13202f;max-width:840px;margin:0 auto;border:1px solid var(--line);border-radius:8px;overflow:hidden;}
+  .bulletin-series{background:transparent;border:0;border-radius:0;overflow:visible;}
+  .bulletin-series .bulletin{margin:0 auto 26px;}
+  .bulletin-series.tabbed > .bulletin{display:none;}
+  .bulletin-series.tabbed > .bulletin.active{display:block;margin-bottom:0;}
+  .html2pdf__page-break{height:0;line-height:0;}
+  .serie-tabs{display:flex;flex-wrap:wrap;gap:7px;margin:0 0 12px;}
+  .serie-tabs button{font-family:var(--sans);font-size:12.5px;font-weight:600;color:var(--muted);background:#fff;border:1px solid var(--line-2);border-radius:999px;padding:7px 13px;cursor:pointer;transition:all .12s;}
+  .serie-tabs button:hover{border-color:var(--accent);color:var(--accent);}
+  .serie-tabs button.active{background:var(--navy);border-color:var(--navy);color:#fff;}
+  .pp-paid{position:fixed;inset:0;z-index:9999;background:rgba(14,22,34,.55);display:flex;align-items:center;justify-content:center;padding:20px;}
+  .pp-paid-card{background:#fff;border-radius:16px;max-width:440px;width:100%;padding:30px 28px;text-align:center;box-shadow:0 24px 70px rgba(10,20,35,.35);}
+  .pp-paid-t{font-family:var(--display);font-size:21px;font-weight:700;color:var(--navy);}
+  .pp-paid-s{font-size:14px;color:var(--muted);margin:8px 0 20px;line-height:1.5;}
+  .pp-paid-btn{width:100%;border:0;border-radius:10px;background:var(--accent);color:#fff;font-weight:600;font-size:15px;padding:14px;cursor:pointer;}
+  .pp-paid-btn:hover{background:#1d54b0;}
+  .pp-paid-x{display:block;width:100%;background:none;border:0;color:var(--faint);font-size:13px;cursor:pointer;margin-top:10px;}
+  .bhead{background:var(--navy);color:#fff;display:flex;justify-content:space-between;gap:20px;align-items:center;padding:20px 26px;}
+  .bhead .co{display:flex;align-items:center;gap:13px;min-width:0;}
+  .bhead .mono{width:42px;height:42px;border-radius:9px;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.18);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:16px;flex:0 0 auto;}
+  .bhead .co .nm{font-size:16px;font-weight:700;line-height:1.2;}
+  .bhead .co .ad{font-size:11px;color:#aebfd8;margin-top:2px;}
+  .bhead .doc{text-align:right;flex:0 0 auto;}
+  .bhead .doc .t{font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:#9fb6d6;}
+  .bhead .doc .p{font-size:18px;font-weight:700;}
+  .bhead .doc .d{font-size:11px;color:#aebfd8;margin-top:2px;}
+
+  .bbody{padding:22px 26px 24px;}
+  .parties{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:6px;}
+  .pbox .lab{font-size:9.5px;letter-spacing:.13em;text-transform:uppercase;color:var(--faint);margin-bottom:4px;font-weight:700;}
+  .pbox .nm{font-size:14.5px;font-weight:700;}
+  .pbox .mt{font-size:11.5px;color:#465364;line-height:1.55;white-space:pre-line;margin-top:2px;}
+  .pbox.emp{border-left:3px solid var(--accent);padding-left:13px;}
+
+  table.cot{width:100%;border-collapse:collapse;margin-top:18px;}
+  table.cot th{font-size:9px;letter-spacing:.05em;text-transform:uppercase;color:#fff;background:var(--navy-2);font-weight:600;text-align:right;padding:8px 7px;}
+  table.cot th:first-child{text-align:left;border-radius:5px 0 0 5px;}
+  table.cot th:last-child{border-radius:0 5px 5px 0;}
+  table.cot td{font-size:11.5px;padding:5px 7px;text-align:right;border-bottom:1px solid #eef1f6;font-variant-numeric:tabular-nums;}
+  table.cot td:first-child{text-align:left;color:#27313e;}
+  table.cot tr.grp td{background:#f5f7fa;font-weight:700;font-size:9.5px;letter-spacing:.05em;text-transform:uppercase;color:#46556a;}
+  table.cot tr.brut td{font-weight:700;font-size:13px;color:#13202f;border-top:2px solid var(--navy);border-bottom:2px solid var(--navy);background:#fafcff;}
+  table.cot tr.tot td{font-weight:700;font-size:12px;background:#f5f7fa;}
+  .muted{color:var(--faint);}
+
+  .pas-block{margin-top:16px;border:1px solid var(--line);border-radius:9px;overflow:hidden;}
+  .pas-block .h{background:#f5f7fa;font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:#46556a;font-weight:700;padding:8px 13px;border-bottom:1px solid var(--line);}
+  .pas-block table{width:100%;border-collapse:collapse;}
+  .pas-block td{font-size:11.5px;padding:6px 13px;border-bottom:1px solid #eef1f6;font-variant-numeric:tabular-nums;}
+  .pas-block td:last-child{text-align:right;font-weight:600;}
+  .pas-block tr:last-child td{border-bottom:0;}
+
+  .results{margin-top:16px;display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+  .rc{border:1px solid var(--line);border-radius:9px;padding:11px 14px;}
+  .rc .k{font-size:9.5px;letter-spacing:.07em;text-transform:uppercase;color:var(--faint);font-weight:700;}
+  .rc .v{font-size:16px;font-weight:700;font-variant-numeric:tabular-nums;margin-top:2px;}
+  .rc.mns{background:var(--accent-soft);border-color:var(--accent-line);}
+  .rc.cost{background:#f5f7fa;}
+  .rc.net{grid-column:1/-1;background:var(--navy);color:#fff;border-color:var(--navy);display:flex;justify-content:space-between;align-items:center;}
+  .rc.net .k{color:#9fb6d6;}
+  .rc.net .v{font-size:27px;}
+
+  .bfoot{margin-top:18px;border-top:1px solid var(--line);padding-top:11px;font-size:9.5px;color:var(--faint);line-height:1.55;}
+  .bfoot .cum{display:flex;gap:22px;flex-wrap:wrap;color:#465364;font-size:10.5px;margin-bottom:7px;}
+  .bfoot .cum b{color:#13202f;}
+
+  /* Blocs congés payés & cumuls */
+  .extra-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:16px;}
+  .cp-block,.cum-block{border:1px solid var(--line);border-radius:9px;overflow:hidden;}
+  .cp-block .h,.cum-block .h{background:#f5f7fa;font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:#46556a;font-weight:700;padding:8px 13px;border-bottom:1px solid var(--line);}
+  .cp-block table{width:100%;border-collapse:collapse;}
+  .cp-block td,.cp-block th{font-size:11px;padding:5px 13px;text-align:right;border-bottom:1px solid #eef1f6;font-variant-numeric:tabular-nums;}
+  .cp-block th{font-size:8.5px;letter-spacing:.04em;text-transform:uppercase;color:#7a8493;font-weight:600;}
+  .cp-block td:first-child,.cp-block th:first-child{text-align:left;color:#27313e;}
+  .cp-block tr.solde td{font-weight:700;background:#fafcff;border-bottom:0;}
+  .cum-grid{padding:6px 13px 8px;}
+  .cum-grid>div{display:flex;justify-content:space-between;font-size:11.5px;padding:4px 0;border-bottom:1px solid #f1f4f8;}
+  .cum-grid>div:last-child{border-bottom:0;}
+  .cum-grid span{color:#5d6b7e;}
+  .cum-grid b{font-variant-numeric:tabular-nums;color:#13202f;}
+
+  /* ---- Personnalisation : logo, polices, modèles ---- */
+  /* compactage : tenir sur une seule page A4 */
+  .bhead{padding:13px 22px;}
+  .bbody{padding:14px 22px 15px;}
+  .parties{gap:14px;margin-bottom:4px;}
+  .pbox .mt{font-size:11px;line-height:1.4;}
+  table.cot{margin-top:10px;}
+  table.cot th{padding:6px 6px;}
+  table.cot td{padding:3px 6px;font-size:11px;}
+  table.cot tr.grp td{padding:4px 6px;}
+  .pas-block{margin-top:9px;}
+  .results{margin-top:9px;gap:9px;}
+  .rc{padding:8px 12px;}
+  .extra-grid{margin-top:9px;gap:10px;}
+  .cp-block .h,.cum-block .h{padding:6px 13px;}
+  .cp-block td,.cp-block th{padding:3px 13px;}
+  .cum-grid{padding:4px 13px 5px;}
+  .cum-grid>div{padding:2px 0;}
+  .bfoot{margin-top:9px;padding-top:8px;}
+  .bulletin .logo-img{max-height:50px;max-width:190px;width:auto;object-fit:contain;display:block;border-radius:6px;background:#fff;padding:2px;}
+</style>
+</head>
+<body>
+  <div class="bulletin" style="--navy:#0e2342;--navy-2:#16335c;">
+    <div class="bhead">
+      <div class="co">
+        <div><div class="nm">BOULANGERIE DUPONT SARL</div><div class="ad">14 rue des Lilas, 69003 Lyon</div></div></div>
+      <div class="doc"><div class="t">Bulletin de paie</div><div class="p">Mars 2026</div><div class="d">Payé le 31/03/2026 · 151,67 h</div></div>
+    </div>
+    <div class="bbody">
+      <div class="parties">
+        <div class="pbox"><div class="lab">Employeur</div><div class="nm">BOULANGERIE DUPONT SARL</div><div class="mt">SIRET : 812 345 678 00012
+APE/NAF : 10.71C
+CCN : Boulangerie-pâtisserie (IDCC 0843)</div></div>
+        <div class="pbox emp"><div class="lab">Salarié·e</div><div class="nm">Camille Durand</div><div class="mt">23 avenue de la Gare, 69003 Lyon
+Emploi : Vendeur·se
+Niveau II — Coefficient 155
+N° SS : 2 90 05 69 123 456 78
+Entrée : 01/09/2024
+Statut : Non-cadre</div></div>
+      </div>
+      <table class="cot">
+        <thead><tr><th>Libellé</th><th>Base</th><th>Taux sal.</th><th>Part salarié</th><th>Taux pat.</th><th>Part employeur</th></tr></thead>
+        <tbody>
+          <tr class="grp"><td colspan="6">Rémunération</td></tr>
+          <tr><td>Salaire de base</td><td></td><td></td><td>1 900,00 €</td><td></td><td></td></tr>
+          <tr class="brut"><td>Salaire brut</td><td></td><td></td><td>1 900,00 €</td><td></td><td></td></tr>
+          <tr class="grp"><td colspan="6">Santé</td></tr>
+          <tr><td>Sécurité sociale — Maladie, maternité</td><td>1 900,00</td><td><span class="muted">—</span></td><td><span class="muted">—</span></td><td>7,00 %</td><td>133,00 €</td></tr>
+          <tr class="grp"><td colspan="6">Retraite</td></tr>
+          <tr><td>Vieillesse plafonnée</td><td>1 900,00</td><td>6,90 %</td><td>131,10 €</td><td>8,55 %</td><td>162,45 €</td></tr>
+          <tr><td>Vieillesse déplafonnée</td><td>1 900,00</td><td>0,40 %</td><td>7,60 €</td><td>1,90 %</td><td>36,10 €</td></tr>
+          <tr><td>Retraite complémentaire T1</td><td>1 900,00</td><td>3,15 %</td><td>59,85 €</td><td>4,72 %</td><td>89,68 €</td></tr>
+          <tr><td>Contribution d'équilibre général (CEG) T1</td><td>1 900,00</td><td>0,86 %</td><td>16,34 €</td><td>1,29 %</td><td>24,51 €</td></tr>
+          <tr class="grp"><td colspan="6">Famille — Accidents du travail</td></tr>
+          <tr><td>Allocations familiales</td><td>1 900,00</td><td><span class="muted">—</span></td><td><span class="muted">—</span></td><td>3,45 %</td><td>65,55 €</td></tr>
+          <tr><td>Accidents du travail</td><td>1 900,00</td><td><span class="muted">—</span></td><td><span class="muted">—</span></td><td>1,50 %</td><td>28,50 €</td></tr>
+          <tr class="grp"><td colspan="6">Chômage</td></tr>
+          <tr><td>Assurance chômage</td><td>1 900,00</td><td><span class="muted">—</span></td><td><span class="muted">—</span></td><td>4,05 %</td><td>76,95 €</td></tr>
+          <tr class="grp"><td colspan="6">CSG / CRDS</td></tr>
+          <tr><td>CSG déductible</td><td>1 866,75</td><td>6,80 %</td><td>126,94 €</td><td><span class="muted">—</span></td><td><span class="muted">—</span></td></tr>
+          <tr><td>CSG/CRDS non déductible</td><td>1 866,75</td><td>2,90 %</td><td>54,14 €</td><td><span class="muted">—</span></td><td><span class="muted">—</span></td></tr>
+          <tr class="tot"><td>Total cotisations et contributions</td><td></td><td></td><td>395,97 €</td><td></td><td>616,74 €</td></tr>
+        </tbody>
+      </table>
+      <div class="results">
+        <div class="rc"><div class="k">Net à payer avant impôt</div><div class="v">1 504,03 €</div></div>
+        <div class="rc"><div class="k">Net imposable</div><div class="v">1 558,17 €</div></div>
+        <div class="rc mns"><div class="k">Montant net social</div><div class="v">1 558,17 €</div></div>
+      </div>
+      <div class="pas-block">
+        <div class="h">Impôt sur le revenu prélevé à la source</div>
+        <table>
+          <tr><td>Base (net imposable)</td><td>1 558,17 €</td></tr>
+          <tr><td>Taux appliqué — taux neutre</td><td>1,30 %</td></tr>
+          <tr><td>Montant de l'impôt prélevé</td><td>− 20,26 €</td></tr>
+        </table></div>
+      <div class="results"><div class="rc net"><div class="k">Net payé au salarié (après impôt)</div><div class="v">1 483,77 €</div></div></div>
+      <div class="extra-grid">
+        <div class="cp-block">
+          <div class="h">Congés payés (jours ouvrables)</div>
+          <table><tbody>
+            <tr><td>Acquis depuis janvier</td><td>7,5</td></tr>
+            <tr><td>Pris</td><td>0</td></tr>
+            <tr class="solde"><td>Solde restant</td><td>7,5</td></tr>
+          </tbody></table>
+        </div>
+        <div class="cum-block">
+          <div class="h">Cumuls depuis janvier</div>
+          <div class="cum-grid">
+            <div><span>Brut</span><b>5 700,00 €</b></div>
+            <div><span>Net imposable</span><b>4 674,51 €</b></div>
+            <div><span>Net payé</span><b>4 451,31 €</b></div>
+            <div><span>Impôt prélevé (PAS)</span><b>60,78 €</b></div>
+            <div><span>Heures travaillées</span><b>455,01 h</b></div>
+          </div>
+        </div>
+      </div>
+      <div class="bfoot">
+        <div class="cum"><span>Salaire brut : <b>1 900,00 €</b></span><span>Cotisations salariales : <b>395,97 €</b></span><span>Impôt prélevé : <b>20,26 €</b></span></div>
+        Spécimen — document d'exemple à données fictives. Les fiches générées sur PaieDoc sont produites à partir de vos données et à titre indicatif ; vérifiez leur conformité (convention collective, effectif, taux AT/MP, plafonds et grille PAS en vigueur) avant remise au salarié.
+      </div>
+    </div>
+  </div>
+</body>
+</html>
